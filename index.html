@@ -1,0 +1,1263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PTSA Tool &amp; Machine Manager</title>
+<meta name="theme-color" content="#072b4f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#072b4f; --blue:#1d5e95; --cyan:#39c5e9;
+  --bg:#f1f4f8; --surface:#ffffff; --ink:#10253b; --muted:#5f6b78; --line:#d8dfe7;
+  --brand:#072b4f; --on-brand:#ffffff; --hero:#1d5e95; --gray:#e3e3e3; --primary:#1d5e95; --on-primary:#ffffff;
+  --brass:#1d5e95; --brass-soft:#e3f3fa;
+  --ok:#166534; --ok-bg:#dcfce7; --info:#1d5e95; --info-bg:#dcebf7; --bad:#991b1b; --bad-bg:#fee2e2; --warn:#92400e; --warn-bg:#fef3c7;
+  --mute-bg:#e8ecf0; --mute:#566170; --mach:#072b4f; --mach-bg:#c9eefa; --tool:#1d5e95; --tool-bg:#dcebf7;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --navy:#041425; --bg:#06192d; --surface:#0b2540; --ink:#eaf1f8; --muted:#9fb2c6; --line:#1d3d5f;
+    --brand:#041425; --on-brand:#ffffff; --hero:#0e3555; --gray:#14304d; --primary:#2c7cba; --on-primary:#ffffff; --brass:#39c5e9; --brass-soft:#0e3555;
+    --ok:#86efac; --ok-bg:#12301d; --info:#8cc8f2; --info-bg:#0f2f50; --bad:#fca5a5; --bad-bg:#3a1616; --warn:#fcd34d; --warn-bg:#33270c;
+    --mute-bg:#14304d; --mute:#a9bccf; --mach:#7fe0f5; --mach-bg:#0f3b4d; --tool:#8cc8f2; --tool-bg:#12365a;
+  }
+}
+:root[data-theme="dark"]{
+  --navy:#041425; --bg:#06192d; --surface:#0b2540; --ink:#eaf1f8; --muted:#9fb2c6; --line:#1d3d5f;
+  --brand:#041425; --on-brand:#ffffff; --hero:#0e3555; --gray:#14304d; --primary:#2c7cba; --on-primary:#ffffff; --brass:#39c5e9; --brass-soft:#0e3555;
+  --ok:#86efac; --ok-bg:#12301d; --info:#8cc8f2; --info-bg:#0f2f50; --bad:#fca5a5; --bad-bg:#3a1616; --warn:#fcd34d; --warn-bg:#33270c;
+  --mute-bg:#14304d; --mute:#a9bccf; --mach:#7fe0f5; --mach-bg:#0f3b4d; --tool:#8cc8f2; --tool-bg:#12365a;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Roboto",system-ui,-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;min-height:100vh}
+h1,h2,h3{font-family:"Roboto",system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:700;letter-spacing:-.01em}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--brass);outline-offset:2px;border-radius:6px}
+.container{max-width:1240px;margin:0 auto;padding:0 1.25rem 3rem}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+.small{font-size:.82rem}
+
+.topbar{background:#072b4f;color:#ccd9e4;font-size:.86rem}
+.topbar .container{display:flex;justify-content:flex-end;align-items:center;gap:.5rem;padding-top:.8rem;padding-bottom:.8rem}
+.topbar a{color:inherit;text-decoration:none;font-weight:500;display:inline-flex;align-items:center;gap:.5rem;letter-spacing:.01em}
+.topbar svg{width:15px;height:15px;fill:currentColor}
+nav{background:#fff;color:#1d5e95;position:sticky;top:env(safe-area-inset-top,0px);z-index:20;box-shadow:0 2px 10px rgba(7,43,79,.18)}
+nav .container{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding-bottom:.35rem;padding-top:.35rem;flex-wrap:wrap}
+.brand{display:flex;align-items:center}
+.brand img,.sitebar img{display:block;height:50px;width:auto}
+.nav-links{display:flex;gap:.1rem;align-items:center;flex-wrap:wrap}
+.nav-links button,.nav-links select{background:none;border:0;color:#1d5e95;padding:.5rem .7rem;border-radius:0;cursor:pointer;font-weight:500;font-size:.85rem;text-transform:uppercase;letter-spacing:.02em}
+.nav-links select{background:#fff;border:1px solid #c5d3e0;border-radius:4px;max-width:200px;text-transform:none;margin-right:.4rem}
+.nav-links select option{color:#10253b}
+.nav-links button:hover{color:#39c5e9}
+.nav-links button.current{color:#39c5e9;font-weight:500}
+.nav-links button[data-a="logout"]{border:2px solid #39c5e9;border-radius:999px;padding:.55rem 1.1rem;margin-left:.4rem}
+.nav-links button[data-a="logout"]:hover{background:#39c5e9;color:#fff}
+.nav-user{font-size:.72rem;color:#5f6b78;margin:0 .1rem 0 .5rem;text-align:right;line-height:1.2;max-width:190px}
+nav + .container{padding-top:0}
+.sitebar{background:#fff;box-shadow:0 2px 10px rgba(7,43,79,.18)}
+.sitebar .container{padding-top:.35rem;padding-bottom:.35rem}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;border:1px solid transparent;border-radius:4px;padding:.55rem .95rem;font-weight:600;cursor:pointer;transition:background .15s,transform .05s}
+.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--primary);color:var(--on-primary)}
+.btn-primary:hover:not(:disabled){opacity:.88}
+.btn-ghost{background:transparent;border-color:var(--line);color:var(--ink)}
+.btn-ghost:hover{background:var(--brass-soft)}
+.btn-danger{background:transparent;border-color:var(--bad);color:var(--bad)}
+.btn-danger:hover{background:var(--bad-bg)}
+.btn-sm{padding:.3rem .65rem;font-size:.82rem;border-radius:4px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+.field{margin-bottom:.9rem}
+.field label{display:block;font-size:.84rem;font-weight:600;margin-bottom:.3rem}
+.input,.select,textarea.input{width:100%;padding:.55rem .7rem;border:1px solid var(--line);border-radius:4px;background:var(--surface)}
+.input:focus,.select:focus{border-color:var(--brass)}
+.hint{font-size:.8rem;color:var(--muted);margin-top:.25rem}
+.check{display:flex;gap:.55rem;align-items:flex-start;font-size:.92rem;margin:.4rem 0;cursor:pointer}
+.check input{margin-top:.25rem;accent-color:var(--brass)}
+
+.login-wrap{min-height:100vh;background:var(--bg)}
+.login-hero{background:var(--hero);color:#fff;padding:2.6rem 0 5.2rem}
+.login-hero .container{padding-bottom:0}
+.login-hero h1{font-size:2.3rem;line-height:1.1;margin-bottom:.4rem}
+.login-hero p{font-size:1.05rem;color:rgba(255,255,255,.9);max-width:620px}
+.login-card{width:calc(100% - 2.5rem);max-width:440px;margin:-3.2rem auto 2rem;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:1.75rem;box-shadow:0 8px 28px rgba(7,43,79,.16);position:relative}
+.switch{text-align:center;margin-top:1rem;font-size:.9rem;color:var(--muted)}
+.link{background:none;border:0;color:var(--brass);font-weight:700;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.demo{margin-top:1.25rem;background:var(--bg);border:1px dashed var(--line);border-radius:10px;padding:.8rem;font-size:.8rem;color:var(--muted)}
+.demo .actions{margin-top:.5rem}
+.alert{padding:.7rem .9rem;border-radius:10px;margin-bottom:1rem;font-size:.9rem;background:var(--bad-bg);color:var(--bad)}
+.banner{padding:.8rem 1rem;border-radius:4px;margin-bottom:1.1rem;font-size:.92rem;background:var(--hero);color:#fff}
+
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1.5rem;padding:2.2rem 0 2rem;background:var(--hero);color:#fff;box-shadow:0 0 0 100vmax var(--hero);clip-path:inset(0 -100vmax)}
+.page-head .btn{background:transparent;color:#fff;border:2px solid #fff;font-weight:700}
+.page-head .btn:hover:not(:disabled){background:rgba(255,255,255,.16);opacity:1}
+.page-head h2{font-size:2.3rem;line-height:1.1;color:#fff}
+.page-head p{color:rgba(255,255,255,.88);font-size:1.05rem;max-width:760px}
+.toolbar{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:1rem;align-items:center}
+.toolbar .input{flex:1 1 220px;max-width:380px}
+.toolbar .select{width:auto;min-width:160px}
+.chips{display:flex;gap:.4rem;flex-wrap:wrap;margin-bottom:1rem}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:.3rem .8rem;font-size:.84rem;font-weight:500;cursor:pointer}
+.chip:hover{background:var(--brass-soft)}
+.chip[aria-pressed="true"]{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:1rem}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:1.05rem;display:flex;flex-direction:column;gap:.55rem}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem}
+.card-name{font-family:"Roboto",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1.15rem;font-weight:700;line-height:1.2}
+.card-sub{font-size:.8rem;color:var(--muted)}
+.card-desc{font-size:.88rem;color:var(--muted);flex:1}
+.stock{display:flex;justify-content:space-between;font-size:.84rem;font-weight:600;margin-bottom:.3rem}
+.bar{height:8px;background:var(--line);border-radius:4px;overflow:hidden}
+.bar > i{display:block;height:100%;background:var(--brass);border-radius:4px}
+.bar.low > i{background:#c2410c}
+.badge{display:inline-block;padding:.18rem .6rem;border-radius:999px;font-size:.75rem;font-weight:700;white-space:nowrap}
+.b-active{background:var(--info-bg);color:var(--info)}
+.b-returned{background:var(--ok-bg);color:var(--ok)}
+.b-overdue,.b-out{background:var(--bad-bg);color:var(--bad)}
+.b-soon,.b-low{background:var(--warn-bg);color:var(--warn)}
+.b-muted{background:var(--mute-bg);color:var(--mute)}
+.tag{display:inline-block;padding:.1rem .5rem;border-radius:6px;font-size:.7rem;font-weight:700;margin-right:.4rem;vertical-align:middle}
+.t-tool{background:var(--tool-bg);color:var(--tool)}
+.t-machine{background:var(--mach-bg);color:var(--mach)}
+.flags{display:flex;gap:.35rem;flex-wrap:wrap}
+.flag{font-size:.72rem;border:1px solid var(--line);border-radius:6px;padding:.05rem .4rem;color:var(--muted)}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:1.25rem}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:700px}
+th{text-align:left;padding:.7rem .9rem;font-size:.8rem;color:var(--muted);font-weight:600;border-bottom:1px solid var(--line);background:var(--bg);white-space:nowrap}
+td{padding:.7rem .9rem;border-bottom:1px solid var(--line);vertical-align:top;font-size:.92rem}
+tr:last-child td{border-bottom:0}
+.ref{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.76rem;background:var(--bg);padding:.1rem .4rem;border-radius:6px;border:1px solid var(--line)}
+.actions{display:flex;gap:.35rem;flex-wrap:wrap}
+.empty{text-align:center;padding:2.5rem 1rem;color:var(--muted)}
+.empty strong{display:block;color:var(--ink);font-family:"Roboto",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:1.15rem;margin-bottom:.25rem}
+
+.sec{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin:1.5rem 0 .7rem}
+.sec h3{font-size:1.15rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8rem}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:1rem}
+.stat .n{color:var(--blue);font-family:"Roboto",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:2rem;font-weight:700;line-height:1}
+.stat .l{font-size:.82rem;color:var(--muted);margin-top:.35rem}
+.stat.hot .n{color:var(--bad)}
+:root[data-theme="dark"] .stat:not(.hot):not(.attn) .n{color:var(--ink)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .stat:not(.hot):not(.attn) .n{color:var(--ink)}}
+.stat.attn .n{color:var(--warn)}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:grid;place-items:center;padding:1rem;z-index:50}
+.modal{background:var(--surface);border-radius:16px;padding:1.4rem;width:100%;max-width:500px;max-height:90vh;overflow:auto;border:1px solid var(--line)}
+.modal.wide{max-width:860px}
+.modal h3{font-size:1.3rem;margin-bottom:.5rem}
+.modal .row{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1rem;flex-wrap:wrap}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0 1rem}
+.kv{display:grid;grid-template-columns:140px 1fr;gap:.3rem .8rem;font-size:.92rem;margin:.6rem 0 1rem}
+.kv dt{color:var(--muted)}
+.timeline{list-style:none;border-left:2px solid var(--line);margin-left:.4rem}
+.timeline li{padding:0 0 .8rem 1rem;position:relative;font-size:.9rem}
+.timeline li::before{content:"";position:absolute;left:-6px;top:.45rem;width:10px;height:10px;border-radius:50%;background:var(--brass)}
+.timeline .when{font-size:.78rem;color:var(--muted)}
+.callout{background:var(--brass-soft);border-radius:10px;padding:.7rem .9rem;font-size:.88rem;margin:.6rem 0}
+
+#toasts{position:fixed;bottom:calc(1rem + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);display:flex;flex-direction:column;gap:.5rem;z-index:60;width:min(92vw,440px)}
+.toast{background:var(--navy);color:#fff;border:1px solid var(--blue);padding:.7rem 1rem;border-radius:12px;font-size:.9rem;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast.err{background:var(--bad);color:#fff}
+@media (max-width:640px){.login-hero h1{font-size:1.6rem}.page-head{padding:1.4rem 0 1.25rem}.page-head h2{font-size:1.6rem}.nav-user{display:none}.kv{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="toasts" role="status" aria-live="polite"></div>
+
+<div id="loginView" class="login-wrap">
+  <div class="topbar"><div class="container"><a href="tel:+27127600300"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>+27 (0)12 760 0300</a></div></div>
+  <div class="sitebar"><div class="container"><img src="data:image/png;base64,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" alt="PtSA: Production Technologies Association of South Africa"></div></div>
+  <div class="login-hero"><div class="container"><h1>Tool &amp; Machine Manager</h1><p id="loginSub">Sign in to borrow tools and machines from your school storeroom.</p></div></div>
+  <div class="login-card">
+    <div id="loginError" class="alert hidden" role="alert"></div>
+    <form id="loginForm">
+      <div id="signupFields" class="hidden">
+        <div class="field"><label for="suName">Full name</label><input class="input" id="suName" autocomplete="name"></div>
+        <div class="field"><label for="suId">Student ID</label><input class="input" id="suId" placeholder="e.g. AGP-1042"></div>
+        <div class="field"><label for="suSchool">Your school</label><select class="select" id="suSchool"></select></div>
+      </div>
+      <div class="field"><label for="loginEmail">Email</label><input class="input" type="email" id="loginEmail" placeholder="student@school.edu" required autocomplete="email"></div>
+      <div class="field"><label for="loginPassword">Password</label><input class="input" type="password" id="loginPassword" required minlength="6" autocomplete="current-password"></div>
+      <button class="btn btn-primary" style="width:100%" type="submit" id="loginBtn">Sign in</button>
+    </form>
+    <div class="switch"><span id="switchText">New student?</span> <button class="link" id="switchBtn" type="button">Create an account</button></div>
+  </div>
+</div>
+
+<div id="appView" class="hidden">
+  <div class="topbar"><div class="container"><a href="tel:+27127600300"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1z"/></svg>+27 (0)12 760 0300</a></div></div>
+  <nav><div class="container">
+    <div class="brand"><img src="data:image/png;base64,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" alt="PtSA: Production Technologies Association of South Africa"></div>
+    <div class="nav-links" id="navLinks"></div>
+  </div></nav>
+  <main class="container" id="main"></main>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* ================= Storage ================= */
+const mem = {}, PFX = 'ptsa5:';
+const store = {
+  get(k, f) { try { const v = localStorage.getItem(PFX + k); if (v !== null) return JSON.parse(v); } catch (e) {} return k in mem ? mem[k] : f; },
+  set(k, v) { mem[k] = v; try { localStorage.setItem(PFX + k, JSON.stringify(v)); } catch (e) {} }
+};
+const get = k => store.get(k, []);
+const put = (k, v) => store.set(k, v);
+
+/* ================= Helpers ================= */
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const $ = (s, r = document) => r.querySelector(s);
+const DAY = 86400000, TOOL_DAYS = 7, MAX_MACHINE_DAYS = 14;
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const nowIso = () => new Date().toISOString();
+const fmtDT = d => d ? new Date(d).toLocaleString(undefined, {day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) : '–';
+const fmtD = d => d ? new Date(d).toLocaleDateString(undefined, {day:'numeric', month:'short', year:'numeric'}) : '–';
+const toLocalInput = ms => new Date(ms - new Date(ms).getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+const sum = (a, f) => a.reduce((n, x) => n + (f(x) || 0), 0);
+const daysLate = (due, at) => Math.max(0, Math.ceil((new Date(at).getTime() - new Date(due).getTime()) / DAY));
+
+async function hash(pw, salt) {
+  try {
+    const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(salt + ':' + pw));
+    return Array.from(new Uint8Array(b)).map(x => x.toString(16).padStart(2, '0')).join('');
+  } catch (e) { return 'plain:' + pw; }
+}
+function toast(msg, err) {
+  const t = document.createElement('div'); t.className = 'toast' + (err ? ' err' : ''); t.textContent = msg;
+  $('#toasts').appendChild(t); setTimeout(() => t.remove(), 4000);
+}
+function modal({title, body, confirmText = 'Confirm', cancelText = 'Cancel', danger = false, wide = false, onConfirm, onOpen}) {
+  const ov = document.createElement('div'); ov.className = 'overlay';
+  ov.innerHTML = `<div class="modal ${wide ? 'wide' : ''}" role="dialog" aria-modal="true" aria-label="${esc(title)}"><h3>${esc(title)}</h3><div>${body}</div>
+    <div class="row">${cancelText ? `<button class="btn btn-ghost" data-x>${esc(cancelText)}</button>` : ''}<button class="btn ${danger ? 'btn-danger' : 'btn-primary'}" data-ok>${esc(confirmText)}</button></div></div>`;
+  document.body.appendChild(ov);
+  const close = () => { ov.remove(); document.removeEventListener('keydown', onKey); };
+  const onKey = e => { if (e.key === 'Escape') close(); };
+  document.addEventListener('keydown', onKey);
+  ov.addEventListener('click', e => { if (e.target === ov) close(); });
+  const x = $('[data-x]', ov); if (x) x.onclick = close;
+  $('[data-ok]', ov).onclick = () => { if (!onConfirm || onConfirm(ov) !== false) close(); };
+  if (onOpen) onOpen(ov);
+  const f = $('input:not([disabled]),select:not([disabled]),textarea,[data-ok]', ov); f && f.focus();
+  return ov;
+}
+const val = (ov, id) => (ov.querySelector('#' + id)?.value ?? '').trim();
+const chk = (ov, id) => !!ov.querySelector('#' + id)?.checked;
+const fail = msg => { toast(msg, true); return false; };
+
+/* ================= Constants ================= */
+const SAFETY_CHECKS = [
+  'I have completed the safety induction for this machine.',
+  'I will wear the required protective equipment.',
+  'I will only use it for my approved school project.'
+];
+const CONDITIONS = ['Excellent', 'Good', 'Fair', 'Poor'];
+const MST = {
+  available: ['Available', 'b-returned'], reserved: ['Reserved: awaiting approval', 'b-soon'], signed_out: ['Signed out', 'b-active'],
+  awaiting_inspection: ['Awaiting inspection', 'b-soon'], damaged: ['Damaged', 'b-out'], under_maintenance: ['Under maintenance', 'b-soon'],
+  under_repair: ['Under repair', 'b-soon'], unavailable: ['Unavailable', 'b-muted'], retired: ['Retired', 'b-muted']
+};
+const MST_WHY = {
+  reserved: 'It is reserved and waiting for storeman approval.', signed_out: 'It is currently signed out.', awaiting_inspection: 'It was returned and is waiting for storeman inspection.',
+  damaged: 'It is damaged and cannot be used.', under_maintenance: 'It is under maintenance.', under_repair: 'It is under repair.',
+  unavailable: 'The storeman has marked it unavailable.', retired: 'It has been retired from service.'
+};
+const LST = {
+  pending: ['Awaiting approval', 'b-soon'], rejected: ['Rejected', 'b-out'], cancelled: ['Cancelled', 'b-muted'], active: ['Signed out', 'b-active'],
+  overdue: ['Overdue', 'b-overdue'], return_pending: ['Awaiting inspection', 'b-soon'], returned: ['Returned', 'b-returned']
+};
+const OUTCOMES = { ok: 'Undamaged: return to stock', needs_maintenance: 'Needs maintenance', damaged: 'Damaged: report damage', needs_repair: 'Needs repair: report damage' };
+const EVL = { registered:'Registered', edited:'Details edited', requested:'Sign-out requested', approved:'Approved', rejected:'Rejected', cancelled:'Request cancelled', issued:'Signed out',
+  return_requested:'Student reported return', returned:'Return confirmed', inspection:'Inspection', damage:'Damage report', maintenance:'Maintenance', repair:'Repair', status:'Availability changed', overdue:'Overdue', retired:'Retired' };
+
+/* ================= Seed (real, empty start: the four PTSA branches only) ================= */
+async function seed() {
+  if (store.get('seeded', false)) return;
+  put('schools', [{ id:'s1', name:'PTSA Gauteng', code:'AGP' }, { id:'s2', name:'PTSA KwaZulu-Natal', code:'KZ' }, { id:'s3', name:'PTSA Cape Town', code:'CT' }, { id:'s4', name:'PTSA Eastern Cape', code:'EC' }]);
+  put('storerooms', [{ id:'r1', schoolId:'s1', name:'Main Storeroom' }, { id:'r2', schoolId:'s2', name:'Main Storeroom' }, { id:'r3', schoolId:'s3', name:'Main Storeroom' }, { id:'r4', schoolId:'s4', name:'Main Storeroom' }]);
+  put('users', []); put('tools', []); put('machines', []); put('events', []);
+  put('loans', []); put('damage', []); put('audit', []);
+  store.set('seeded', true);
+}
+
+/* ================= State & access control ================= */
+let me = null, signup = false;
+const ui = { view:'', school:'all', search:'', cat:'All', room:'all', inStock:false, mAvail:false, mStatus:'all', mine:'active', mineType:'all', lType:'all', lStatus:'all', issueStu:'', lSearch:'', aSearch:'' };
+const isStudent = () => me.role === 'student', isStoreman = () => me.role === 'storeman', isManager = () => me.role === 'manager', isAdmin = () => me.role === 'admin';
+const staffSchools = u => u.role === 'admin' ? get('schools').map(x => x.id) : (u.schoolIds || []);
+const mySchoolIds = () => isStudent() ? [me.schoolId] : staffSchools(me);
+const scopeIds = () => isStudent() ? [me.schoolId] : (ui.school === 'all' ? staffSchools(me) : [ui.school]);
+const inScope = sid => scopeIds().includes(sid);
+const canManage = sid => isStoreman() && me.schoolIds.includes(sid);
+const sName = id => get('schools').find(s => s.id === id)?.name || 'Unknown school';
+const rName = id => get('storerooms').find(r => r.id === id)?.name || '–';
+const vTools = () => get('tools').filter(t => inScope(t.schoolId));
+const vMachines = () => get('machines').filter(m => inScope(m.schoolId));
+const vLoans = () => get('loans').filter(l => inScope(l.schoolId) && (!isStudent() || l.userId === me.id));
+const vDamage = () => isStudent() ? [] : get('damage').filter(d => inScope(d.schoolId));
+function guard(sid, what) {
+  if (canManage(sid)) return true;
+  audit('access_denied', 'system', '', sid, 'Blocked: ' + what);
+  toast('You do not have permission to do that for this school.', true); return false;
+}
+function guardStudent(sid) {
+  if (me && isStudent() && me.schoolId === sid) return true;
+  audit('access_denied', 'system', '', sid, 'Blocked student action');
+  toast('You can only use items from your own school.', true); return false;
+}
+
+/* ================= Audit & history ================= */
+function audit(action, entity, entityId, schoolId, detail, sys) {
+  const a = get('audit');
+  a.push({ id:uid(), at:nowIso(), userId: !sys && me ? me.id : null, actor: !sys && me ? `${me.name} (${me.email})` : 'System', role: !sys && me ? me.role : 'system', schoolId, action, entity, entityId, detail });
+  if (a.length > 1500) a.splice(0, a.length - 1500);
+  put('audit', a);
+}
+function mEvent(m, type, detail, extra = {}) {
+  const ev = get('events');
+  ev.push({ id:uid(), machineId:m.id, schoolId:m.schoolId, at:nowIso(), type, byId: me ? me.id : null, by: me ? me.name : 'System', detail, ...extra });
+  put('events', ev);
+}
+function change(m, to, type, text, extra) { const from = m.status; m.status = to; mEvent(m, type, text, { from, to, ...extra }); }
+function sweepOverdue() {
+  const L = get('loans'), ms = get('machines'); let ch = false;
+  L.forEach(l => {
+    if (l.status === 'active' && !l.overdueAt && new Date(l.returnDue).getTime() < Date.now()) {
+      l.overdueAt = nowIso(); ch = true;
+      audit('loan_overdue', l.itemType, l.itemId, l.schoolId, `${l.itemName} (${l.ref}) passed its return time. Student: ${l.studentName}`, true);
+      if (l.itemType === 'machine') { const m = ms.find(x => x.id === l.itemId); if (m) { const ev = get('events'); ev.push({ id:uid(), machineId:m.id, schoolId:m.schoolId, at:nowIso(), type:'overdue', by:'System', byId:null, detail:`Return overdue. Signed out to ${l.studentName} (${l.studentIdNo}).` }); put('events', ev); } }
+    }
+  });
+  if (ch) put('loans', L);
+}
+
+/* ================= Status helpers ================= */
+const loanStatus = l => (l.status === 'active' && new Date(l.returnDue).getTime() < Date.now()) ? 'overdue' : l.status;
+function lbadge(l) {
+  const s = loanStatus(l);
+  const soon = s === 'active' && new Date(l.returnDue).getTime() - Date.now() < 2 * DAY;
+  return `<span class="badge ${soon ? 'b-soon' : LST[s][1]}">${soon ? 'Due soon' : LST[s][0]}</span>`;
+}
+function dueText(l) {
+  const s = loanStatus(l);
+  if (s === 'overdue') { const d = daysLate(l.returnDue, Date.now()); return `${d} day${d === 1 ? '' : 's'} late`; }
+  if (s === 'active') { const d = Math.ceil((new Date(l.returnDue).getTime() - Date.now()) / DAY); return d <= 1 ? 'Due within a day' : `${d} days left`; }
+  if (s === 'returned' && l.returnedAt) { const d = daysLate(l.returnDue, l.returnedAt); return d ? `Returned ${d} day${d === 1 ? '' : 's'} late` : 'Returned on time'; }
+  return '';
+}
+const mbadge = m => `<span class="badge ${MST[m.status][1]}">${MST[m.status][0]}</span>`;
+const typeTag = t => `<span class="tag ${t === 'machine' ? 't-machine' : 't-tool'}">${t === 'machine' ? 'Machine' : 'Tool'}</span>`;
+const OPEN_LOAN = ['pending', 'active', 'return_pending'];
+const myOpenLoanFor = id => get('loans').find(l => l.userId === me.id && l.itemId === id && OPEN_LOAN.includes(l.status));
+const myOverdue = () => get('loans').filter(l => l.userId === me.id && loanStatus(l) === 'overdue');
+
+/* ================= Auth ================= */
+function setSignup(on) {
+  signup = on;
+  $('#signupFields').classList.toggle('hidden', !on);
+  $('#loginBtn').textContent = on ? 'Create student account' : 'Sign in';
+  $('#switchText').textContent = on ? 'Already registered?' : 'New student?';
+  $('#switchBtn').textContent = on ? 'Sign in' : 'Create an account';
+  $('#loginSub').textContent = on ? 'Register with your school to borrow from its storeroom. Staff accounts are set up by your administrator.' : 'Sign in to borrow tools and machines from your school storeroom.';
+  $('#loginPassword').autocomplete = on ? 'new-password' : 'current-password';
+  $('#suSchool').innerHTML = '<option value="">Choose your school</option>' + get('schools').map(s => `<option value="${esc(s.id)}">${esc(s.name)}</option>`).join('');
+  $('#loginError').classList.add('hidden');
+}
+const loginError = m => { const e = $('#loginError'); e.textContent = m; e.classList.remove('hidden'); };
+async function authenticate(email, pw) {
+  email = email.trim().toLowerCase();
+  const us = get('users');
+  if (signup) {
+    const name = $('#suName').value.trim(), sid = $('#suId').value.trim(), school = $('#suSchool').value;
+    if (!name || !sid || !school) return loginError('Enter your name, student ID and school.');
+    if (pw.length < 6) return loginError('Password must be at least 6 characters.');
+    if (us.some(u => u.email.toLowerCase() === email)) return loginError('An account with that email already exists. Sign in instead.');
+    if (us.some(u => u.role === 'student' && u.schoolId === school && (u.studentId || '').toLowerCase() === sid.toLowerCase())) return loginError('That student ID is already registered at this school.');
+    const salt = uid();
+    const u = { id: uid(), email, name, role:'student', studentId:sid, schoolId:school, salt, passHash: await hash(pw, salt) };
+    us.push(u); put('users', us); me = u; audit('account_created', 'user', u.id, school, `Student account created for ${name} (${sid})`);
+    return enter(u);
+  }
+  const u = us.find(x => x.email.toLowerCase() === email);
+  if (!u || (await hash(pw, u.salt)) !== u.passHash) return loginError('Wrong email or password. Check both and try again.');
+  me = u; audit('login', 'user', u.id, u.schoolId || u.schoolIds[0], 'Signed in');
+  enter(u);
+}
+function enter(u) {
+  me = u; store.set('session', u.id);
+  const ss = isStudent() ? [] : staffSchools(me); ui.school = ss.length === 1 ? ss[0] : 'all';
+  $('#loginForm').reset(); $('#loginError').classList.add('hidden');
+  $('#loginView').classList.add('hidden'); $('#appView').classList.remove('hidden');
+  go(isStudent() ? 'tools' : isAdmin() ? 'admin' : 'dash');
+}
+function logout() {
+  audit('logout', 'user', me.id, me.schoolId || me.schoolIds[0], 'Signed out');
+  me = null; store.set('session', null);
+  $('#appView').classList.add('hidden'); $('#loginView').classList.remove('hidden'); setSignup(false);
+}
+
+/* ================= Navigation ================= */
+function queueCount() {
+  if (!isStoreman()) return 0;
+  return vLoans().filter(l => canManage(l.schoolId) && (l.status === 'pending' || (l.itemType === 'machine' && l.status === 'return_pending'))).length;
+}
+function go(v) {
+  sweepOverdue(); ui.view = v; ui.search = ''; ui.cat = 'All'; ui.room = 'all';
+  const items = isAdmin() ? [['admin', 'Schools & staff'], ['audit', 'Audit log']] : isStudent() ? [['tools','Tools'], ['machines','Machines'], ['mine','My checkouts'], ['report','Report damage']] :
+    [['dash','Dashboard'], ['tools','Tools'], ['machines','Machines']].concat(isStoreman() ? [['issue','Sign out'], ['queue','Queue' + (queueCount() ? ` (${queueCount()})` : '')], ['report','Report damage']] : [], [['loans','Transactions'], ['damage','Damage reports'], ['audit','Audit log']]);
+  const od = isStudent() ? myOverdue().length : 0;
+  const schoolSel = !isStudent() && !isAdmin() && me.schoolIds.length > 1 ?
+    `<select id="scopeSel" aria-label="School filter"><option value="all">All my schools</option>${me.schoolIds.map(id => `<option value="${esc(id)}" ${ui.school === id ? 'selected' : ''}>${esc(sName(id))}</option>`).join('')}</select>` : '';
+  $('#navLinks').innerHTML = schoolSel + items.map(([id, l]) => `<button data-a="go" data-id="${id}" class="${id === v ? 'current' : ''}" ${id === v ? 'aria-current="page"' : ''}>${l}${id === 'mine' && od ? ` (${od} late)` : ''}</button>`).join('') +
+    `<span class="nav-user">${esc(me.name)}<br>${isStudent() ? esc(sName(me.schoolId)) : isManager() ? 'Regional manager (read-only)' : isAdmin() ? 'PTSA administrator' : 'Storeman · ' + esc(me.schoolIds.map(sName).join(', '))}</span><button data-a="logout">Log out</button>`;
+  render(); window.scrollTo(0, 0);
+}
+function render() {
+  const f = { tools: isStudent() ? pgToolsStudent : pgToolsStaff, machines: isStudent() ? pgMachinesStudent : pgMachinesStaff, mine: pgMine, dash: pgDash, queue: pgQueue, loans: pgLoans, damage: pgDamage, audit: pgAudit, report: pgReport, issue: pgIssue, admin: pgAdmin }[ui.view];
+  if ((!isStudent() && ['mine'].includes(ui.view)) || (isStudent() && ['dash','queue','loans','damage','audit'].includes(ui.view)) || (ui.view === 'queue' && !isStoreman()) || (ui.view === 'report' && isManager()) || (ui.view === 'issue' && !isStoreman()) || (isAdmin() && !['admin', 'audit'].includes(ui.view)) || (!isAdmin() && ui.view === 'admin')) return go(isStudent() ? 'tools' : isAdmin() ? 'admin' : 'dash');
+  f();
+}
+const redraw = () => ({ tools: isStudent() ? drawToolGrid : drawToolTable, machines: isStudent() ? drawMachGrid : drawMachTable, loans: drawLoans, audit: drawAudit }[ui.view] || (() => {}))();
+const banner = () => isManager() ? '<div class="banner">Read-only access. You can monitor tools, machines and outstanding returns across your assigned schools. Storemen manage the transactions.</div>' : '';
+
+/* ================= Student: tools ================= */
+function roomSelect() {
+  const rooms = get('storerooms').filter(r => inScope(r.schoolId));
+  return `<select class="select" data-k="room" aria-label="Storeroom"><option value="all">All storerooms</option>${rooms.map(r => `<option value="${esc(r.id)}" ${ui.room === r.id ? 'selected' : ''}>${esc(r.name)}</option>`).join('')}</select>`;
+}
+function pgToolsStudent() {
+  const cats = ['All', ...new Set(vTools().map(t => t.category))];
+  $('#main').innerHTML = `<div class="page-head"><div><h2>Tools</h2><p>${esc(sName(me.schoolId))}. Browse what is in stock and request a tool. The storeman approves each request, then you collect it at the storeroom. One of each tool at a time. Returns are confirmed by the storeman only.</p></div></div>
+    <div class="toolbar"><input class="input" data-search="search" type="search" placeholder="Search tools" aria-label="Search tools" value="${esc(ui.search)}">${roomSelect()}
+    <label class="check" style="margin:0"><input type="checkbox" data-k="inStock" ${ui.inStock ? 'checked' : ''}> In stock only</label></div>
+    <div class="chips">${cats.map(c => `<button class="chip" data-a="cat" data-id="${esc(c)}" aria-pressed="${c === ui.cat}">${esc(c)}</button>`).join('')}</div><div id="list"></div>`;
+  drawToolGrid();
+}
+function drawToolGrid() {
+  const q = ui.search.toLowerCase();
+  const mine = vLoans().filter(l => l.itemType === 'tool' && ['active', 'pending'].includes(l.status));
+  const list = vTools().filter(t => (ui.cat === 'All' || t.category === ui.cat) && (ui.room === 'all' || t.storeroomId === ui.room) && (!ui.inStock || t.quantityAvailable > 0) && (!q || (t.name + t.description + t.category).toLowerCase().includes(q)));
+  $('#list').innerHTML = list.length ? `<div class="cards">${list.map(t => {
+    const pct = t.quantityTotal ? Math.round(t.quantityAvailable / t.quantityTotal * 100) : 0, out = t.quantityAvailable === 0, low = !out && pct <= 34, have = mine.filter(l => l.itemId === t.id).length, pend = mine.some(l => l.itemId === t.id && l.status === 'pending');
+    return `<article class="card"><div class="card-top"><div><div class="card-name">${esc(t.name)}</div><div class="card-sub">${esc(t.category)} · ${esc(rName(t.storeroomId))}</div></div>${out ? '<span class="badge b-out">Out</span>' : low ? '<span class="badge b-low">Low</span>' : ''}</div>
+      <p class="card-desc">${esc(t.description) || 'No description.'}</p>
+      <div><div class="stock"><span>Available</span><span>${t.quantityAvailable} of ${t.quantityTotal}</span></div><div class="bar ${low || out ? 'low' : ''}"><i style="width:${pct}%"></i></div></div>
+      ${have ? `<div class="hint">${pend ? "Your request is awaiting the storeman\'s approval." : "You have this tool."}</div>` : `<button class="btn btn-primary" data-a="reqtool" data-id="${esc(t.id)}" ${out ? "disabled" : ""}>${out ? "Out of stock" : "Request sign-out"}</button>`}</article>`;
+  }).join('')}</div>` : '<div class="empty"><strong>No tools match</strong>Try a different search, storeroom or category.</div>';
+}
+/* ================= Student: machines ================= */
+function pgMachinesStudent() {
+  const cats = ['All', ...new Set(vMachines().map(m => m.category))];
+  $('#main').innerHTML = `<div class="page-head"><div><h2>Machines</h2><p>${esc(sName(me.schoolId))}. Pick a machine to see its details and availability. Book out an available machine and the storeman will approve it. You can also ask the storeman to sign one out to you at the storeroom.</p></div></div>
+    <div class="toolbar"><input class="input" data-search="search" type="search" placeholder="Search machines" aria-label="Search machines" value="${esc(ui.search)}">${roomSelect()}
+    <label class="check" style="margin:0"><input type="checkbox" data-k="mAvail" ${ui.mAvail ? 'checked' : ''}> Available only</label></div>
+    <div class="chips">${cats.map(c => `<button class="chip" data-a="cat" data-id="${esc(c)}" aria-pressed="${c === ui.cat}">${esc(c)}</button>`).join('')}</div><div id="list"></div>`;
+  drawMachGrid();
+}
+const flagsOf = m => `<div class="flags">${m.requiresAuth ? '<span class="flag">Needs approval</span>' : ''}${m.requiresSafetyCheck ? '<span class="flag">Safety check</span>' : ''}</div>`;
+function drawMachGrid() {
+  const q = ui.search.toLowerCase();
+  const list = vMachines().filter(m => (ui.cat === 'All' || m.category === ui.cat) && (ui.room === 'all' || m.storeroomId === ui.room) && (!ui.mAvail || m.status === 'available') && (!q || (m.name + m.brand + m.model + m.refNo + m.category).toLowerCase().includes(q)));
+  $('#list').innerHTML = list.length ? `<div class="cards">${list.map(m => `<article class="card"><div class="card-top"><div><div class="card-name">${esc(m.name)}</div><div class="card-sub">${esc(m.brand)} ${esc(m.model)} · <span class="ref">${esc(m.refNo)}</span></div></div>${mbadge(m)}</div>
+    <div class="card-sub">${esc(m.category)} · ${esc(rName(m.storeroomId))}<br>Condition: ${esc(m.condition)}</div>${flagsOf(m)}<div style="flex:1"></div>
+    <div class="actions"><button class="btn btn-ghost" data-a="mview" data-id="${esc(m.id)}">View details</button>${m.status === 'available' ? `<button class="btn btn-primary" data-a="reqmach" data-id="${esc(m.id)}">Book out</button>` : ''}</div></article>`).join('')}</div>`
+    : '<div class="empty"><strong>No machines match</strong>Try a different search, storeroom or category.</div>';
+}
+function machineDetails(m) {
+  return `<dl class="kv"><dt>Reference</dt><dd><span class="ref">${esc(m.refNo)}</span></dd><dt>Category</dt><dd>${esc(m.category)}</dd><dt>Brand and model</dt><dd>${esc(m.brand)} ${esc(m.model)}</dd>
+    <dt>Serial number</dt><dd>${esc(m.serial) || '–'}</dd><dt>Condition</dt><dd>${esc(m.condition)}</dd><dt>School</dt><dd>${esc(sName(m.schoolId))}</dd><dt>Storeroom</dt><dd>${esc(rName(m.storeroomId))}</dd>
+    <dt>Location</dt><dd>${esc(m.location) || '–'}</dd><dt>Availability</dt><dd>${mbadge(m)}</dd></dl>`;
+}
+function requestMachine(id) {
+  const m = get('machines').find(x => x.id === id);
+  if (!m || !isStudent() || !guardStudent(m.schoolId)) return;
+  if (m.status !== 'available') return toast(`That machine is ${MST[m.status][0].toLowerCase()}.`, true);
+  const safe = m.requiresSafetyCheck ? `<div class="field"><label>Safety check: confirm each point</label>${SAFETY_CHECKS.map((t, i) => `<label class="check"><input type="checkbox" data-rsafe> ${esc(t)}</label>`).join('')}</div>` : '';
+  modal({ title: `Book out ${m.name}`, confirmText: 'Send booking request', body: `<p>${esc(m.name)} · <span class="ref">${esc(m.refNo)}</span> · ${esc(rName(m.storeroomId))}<br><span class="hint">The storeman must approve your booking before you collect the machine.</span></p>
+    <div class="field"><label for="bDue">When will you return it?</label><input class="input" type="datetime-local" id="bDue" value="${toLocalInput(Date.now() + 2 * DAY)}"><div class="hint">Up to ${MAX_MACHINE_DAYS} days from now.</div></div>
+    ${safe}<div class="field"><label for="bNote">What do you need it for?</label><textarea class="input" id="bNote" rows="2"></textarea></div>`,
+    onConfirm: ov => {
+      const dueMs = new Date(ov.querySelector('#bDue').value).getTime();
+      if (!dueMs || dueMs < Date.now() + 1800000) return fail('Choose a return time at least 30 minutes from now.');
+      if (dueMs > Date.now() + MAX_MACHINE_DAYS * DAY + 60000) return fail(`The return time can be at most ${MAX_MACHINE_DAYS} days from now.`);
+      if (m.requiresSafetyCheck && ![...ov.querySelectorAll('[data-rsafe]')].every(b => b.checked)) return fail('Tick every safety confirmation to continue.');
+      if (!val(ov, 'bNote')) return fail('Say what you need the machine for.');
+      const ms = get('machines'), mm = ms.find(x => x.id === id), L = get('loans');
+      if (!mm || mm.schoolId !== me.schoolId) return fail('That machine is not available at your school.');
+      if (mm.status !== 'available') return fail('Someone else has just booked this machine.');
+      if (L.some(l => l.userId === me.id && loanStatus(l) === 'overdue')) return fail('You have overdue items. Return them before borrowing anything else.');
+      if (L.some(l => l.userId === me.id && l.itemId === id && OPEN_LOAN.includes(l.status))) return fail('You already have this machine or a booking for it.');
+      const t0 = nowIso(), loan = { id:uid(), userId:me.id, studentName:me.name, studentIdNo:me.studentId, requestedAt:t0, signedOutAt:null, returnDue:new Date(dueMs).toISOString(), status:'pending', authRequired:true, authStatus:'pending',
+        requestNote:val(ov, 'bNote'), itemType:'machine', itemId:id, itemName:mm.name, ref:mm.refNo, schoolId:mm.schoolId, storeroomId:mm.storeroomId, safety:{ required:mm.requiresSafetyCheck, confirmedAt:mm.requiresSafetyCheck ? t0 : null, items:mm.requiresSafetyCheck ? SAFETY_CHECKS.slice() : [], recordedBy:me.name } };
+      L.push(loan); put('loans', L); mm.currentLoanId = loan.id;
+      change(mm, 'reserved', 'requested', `${me.name} (${me.studentId}) booked this machine. Awaiting storeman approval. Due ${fmtDT(loan.returnDue)}.`); put('machines', ms);
+      audit('machine_requested', 'machine', id, mm.schoolId, `${me.name} (${me.studentId}) booked ${mm.name} (${mm.refNo}). Awaiting storeman approval.`);
+      toast('Booking sent. The storeman will review it.'); go('mine');
+    } });
+}
+function machineModal(id) {
+  const m = get('machines').find(x => x.id === id);
+  if (!m || !guardStudent(m.schoolId)) return;
+  const note = m.status === 'available' ? 'It is available. Use Book out to request it, or ask the storeman to sign it out to you at the storeroom.' : `It can't be signed out right now. ${MST_WHY[m.status] || ''}`;
+  modal({ title: m.name, confirmText: 'Close', cancelText: null, body: machineDetails(m) + `<div class="callout">${esc(note)}${m.requiresAuth ? ' It needs the storeman\'s approval.' : ''}${m.requiresSafetyCheck ? ' You will confirm a safety check when it is signed out.' : ''}</div>` });
+}
+
+function requestTool(id) {
+  const t = get('tools').find(x => x.id === id);
+  if (!t || !isStudent() || !guardStudent(t.schoolId)) return;
+  modal({ title: `Request ${t.name}`, confirmText: 'Send request', body: `<p>${esc(t.name)} · ${esc(rName(t.storeroomId))}<br><span class="hint">The storeman must approve this request before you can collect the tool.</span></p>
+    <div class="field"><label for="qDue">When will you return it?</label><input class="input" type="datetime-local" id="qDue" value="${toLocalInput(Date.now() + TOOL_DAYS * DAY)}"><div class="hint">Up to ${MAX_MACHINE_DAYS} days from now. The storeman can adjust this when approving.</div></div>
+    <div class="field"><label for="qNote">What do you need it for? <span class="hint">(optional)</span></label><textarea class="input" id="qNote" rows="2"></textarea></div>`,
+    onConfirm: ov => {
+      const dueMs = new Date(ov.querySelector('#qDue').value).getTime();
+      if (!dueMs || dueMs < Date.now() + 1800000) return fail('Choose a return time at least 30 minutes from now.');
+      if (dueMs > Date.now() + MAX_MACHINE_DAYS * DAY + 60000) return fail(`The return time can be at most ${MAX_MACHINE_DAYS} days from now.`);
+      const L = get('loans'), ts = get('tools'), tool = ts.find(x => x.id === id);
+      if (!tool || tool.schoolId !== me.schoolId) return fail('That tool is not available at your school.');
+      if (L.some(l => l.userId === me.id && loanStatus(l) === 'overdue')) return fail('You have overdue items. Return them before borrowing anything else.');
+      if (L.some(l => l.userId === me.id && l.itemId === id && OPEN_LOAN.includes(l.status))) return fail('You already have this tool or a request for it.');
+      if (tool.quantityAvailable < 1) return fail('That tool is out of stock right now.');
+      tool.quantityAvailable--; put('tools', ts);
+      const t0 = nowIso(), ref = `TL-${tool.id.slice(-3).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+      L.push({ id:uid(), userId:me.id, studentName:me.name, studentIdNo:me.studentId, requestedAt:t0, signedOutAt:null, returnDue:new Date(dueMs).toISOString(), status:'pending', authRequired:true, authStatus:'pending',
+        requestNote:val(ov, 'qNote'), itemType:'tool', itemId:id, itemName:tool.name, ref, schoolId:tool.schoolId, storeroomId:tool.storeroomId });
+      put('loans', L);
+      audit('tool_requested', 'tool', id, tool.schoolId, `${me.name} (${me.studentId}) requested ${tool.name}. Ref ${ref}. Awaiting storeman approval.`);
+      toast('Request sent. The storeman will review it.'); go('mine');
+    } });
+}
+/* ================= Student: my checkouts ================= */
+function pgMine() {
+  const rows = vLoans().filter(l => (ui.mineType === 'all' || l.itemType === ui.mineType) && (ui.mine === 'all' ? true : ui.mine === 'active' ? ['pending', 'active', 'return_pending'].includes(l.status) : ['returned', 'rejected', 'cancelled'].includes(l.status))).sort((a, b) => b.requestedAt.localeCompare(a.requestedAt));
+  $('#main').innerHTML = `<div class="page-head"><div><h2>My checkouts</h2><p>${esc(me.name)} · ${esc(me.studentId)}</p></div></div>
+    ${myOverdue().length ? `<div class="alert">You have ${myOverdue().length} overdue item${myOverdue().length > 1 ? 's' : ''}. Return ${myOverdue().length > 1 ? 'them' : 'it'} to the storeroom before borrowing anything else.</div>` : ''}
+    <div class="chips">${[['active','Current'],['returned','Past'],['all','All']].map(([k, l]) => `<button class="chip" data-a="mine" data-id="${k}" aria-pressed="${ui.mine === k}">${l}</button>`).join('')}
+    <span style="width:1rem"></span>${[['all','Tools and machines'],['tool','Tools'],['machine','Machines']].map(([k, l]) => `<button class="chip" data-a="minetype" data-id="${k}" aria-pressed="${ui.mineType === k}">${l}</button>`).join('')}</div>
+    <div class="panel">${loanTable(rows, { student:false, empty:'Nothing here yet', emptyHint:'Request a tool from the Tools page and it will show up here.' })}</div>`;
+}
+function cancelRequest(id) {
+  const l = get('loans').find(x => x.id === id);
+  if (!l || l.userId !== me.id) return;
+  modal({ title: 'Cancel this request?', confirmText: 'Cancel request', cancelText: 'Keep it', danger: true, body: `<p>${esc(l.itemName)} will be released for other students.</p>`,
+    onConfirm: () => {
+      const L = get('loans'), x = L.find(y => y.id === id);
+      if (!x || x.status !== 'pending') return fail('This request has already been handled.');
+      x.status = 'cancelled'; x.authStatus = 'cancelled'; put('loans', L);
+      if (x.itemType === 'tool') releaseTool(x);
+      else { const ms = get('machines'), m = ms.find(y => y.id === x.itemId); if (m && m.currentLoanId === id) { m.currentLoanId = null; change(m, 'available', 'cancelled', `${me.name} cancelled the sign-out request.`); put('machines', ms); } }
+      audit(x.itemType + '_request_cancelled', x.itemType, x.itemId, x.schoolId, `${me.name} cancelled the request for ${x.itemName} (${x.ref}).`);
+      toast('Request cancelled'); go('mine');
+    } });
+}
+/* Give a reserved unit of a tool back to stock (request cancelled or rejected) */
+function releaseTool(l) { const ts = get('tools'), t = ts.find(y => y.id === l.itemId); if (t) { t.quantityAvailable++; put('tools', ts); } }
+
+/* ================= Shared loans table ================= */
+function loanActions(l) {
+  const id = esc(l.id);
+  if (isStudent()) {
+    if (l.userId !== me.id) return '';
+    if (l.status === 'pending') return `<button class="btn btn-ghost btn-sm" data-a="cancel" data-id="${id}">Cancel request</button>`;
+    return '';
+  }
+  if (!canManage(l.schoolId)) return '';
+  if (l.status === 'pending') return `<div class="actions"><button class="btn btn-primary btn-sm" data-a="approve" data-id="${id}">Approve</button><button class="btn btn-danger btn-sm" data-a="reject" data-id="${id}">Reject</button></div>`;
+  if (l.itemType === 'machine' && (l.status === 'active' || l.status === 'return_pending')) return `<button class="btn btn-primary btn-sm" data-a="inspret" data-id="${id}">${l.status === 'return_pending' ? 'Inspect and confirm' : 'Receive and inspect'}</button>`;
+  if (l.itemType === 'tool' && l.status === 'active') return `<button class="btn btn-primary btn-sm" data-a="toolret" data-id="${id}">Confirm return</button>`;
+  return '';
+}
+function loanTable(rows, o = {}) {
+  if (!rows.length) return `<div class="empty"><strong>${esc(o.empty || 'Nothing here')}</strong>${esc(o.emptyHint || '')}</div>`;
+  const showStu = o.student !== false && !isStudent(), multi = !isStudent() && scopeIds().length > 1;
+  return `<div class="table-wrap"><table><thead><tr><th>Item</th>${showStu ? '<th>Student</th>' : ''}<th>${multi ? 'School / storeroom' : 'Storeroom'}</th><th>Signed out</th><th>Due back</th><th>Status</th><th></th></tr></thead><tbody>
+  ${rows.map(l => `<tr><td>${typeTag(l.itemType)}<strong>${esc(l.itemName)}</strong><div class="card-sub"><span class="ref">${esc(l.ref)}</span>${l.authRequired ? ' · needs approval' : ''}${l.issuedBy ? ' · issued by ' + esc(l.issuedBy) : ''}${l.safety?.confirmedAt ? ' · safety confirmed' : ''}</div>${l.requestNote ? `<div class="card-sub">Note: ${esc(l.requestNote)}</div>` : ''}</td>
+    ${showStu ? `<td>${esc(l.studentName)}<div class="card-sub">${esc(l.studentIdNo)}</div></td>` : ''}
+    <td>${multi ? esc(sName(l.schoolId)) + '<div class="card-sub">' + esc(rName(l.storeroomId)) + '</div>' : esc(rName(l.storeroomId))}</td>
+    <td>${l.signedOutAt ? fmtDT(l.signedOutAt) : '<span class="muted">Requested ' + fmtDT(l.requestedAt) + '</span>'}</td>
+    <td>${['returned', 'rejected', 'cancelled'].includes(l.status) ? (l.returnedAt ? '<span class="muted">Returned ' + fmtDT(l.returnedAt) + '</span>' : '–') : fmtDT(l.returnDue)}<div class="card-sub">${esc(dueText(l))}</div></td>
+    <td>${lbadge(l)}${l.rejectReason ? `<div class="card-sub">${esc(l.rejectReason)}</div>` : ''}</td><td>${loanActions(l)}</td></tr>`).join('')}</tbody></table></div>`;
+}
+
+/* ================= Staff: tools ================= */
+function locFields(x) {
+  const schools = get('schools').filter(s => mySchoolIds().includes(s.id)), sid = x?.schoolId || schools[0].id;
+  return `<div class="form-grid"><div class="field"><label for="fSchool">School</label><select class="select" id="fSchool" ${x ? 'disabled' : ''}>${schools.map(s => `<option value="${esc(s.id)}" ${s.id === sid ? 'selected' : ''}>${esc(s.name)}</option>`).join('')}</select></div>
+    <div class="field"><label for="fRoom">Storeroom</label><select class="select" id="fRoom">${roomOpts(sid, x?.storeroomId)}</select></div></div>`;
+}
+const roomOpts = (sid, sel) => get('storerooms').filter(r => r.schoolId === sid).map(r => `<option value="${esc(r.id)}" ${r.id === sel ? 'selected' : ''}>${esc(r.name)}</option>`).join('');
+const bindLoc = (ov, onSchool) => { const s = ov.querySelector('#fSchool'); s.onchange = () => { ov.querySelector('#fRoom').innerHTML = roomOpts(s.value); onSchool && onSchool(s.value); }; };
+function pgToolsStaff() {
+  $('#main').innerHTML = `<div class="page-head"><div><h2>Tools</h2><p>Quantities by storeroom. Damaged tools are held out of stock.</p></div>${isStoreman() ? '<button class="btn btn-primary" data-a="addtool">Add tool</button>' : ''}</div>${banner()}
+    <div class="toolbar"><input class="input" data-search="search" type="search" placeholder="Search tools" aria-label="Search tools" value="${esc(ui.search)}"></div><div class="panel" id="list"></div>`;
+  drawToolTable();
+}
+function drawToolTable() {
+  const q = ui.search.toLowerCase(), loans = get('loans'), multi = scopeIds().length > 1;
+  const list = vTools().filter(t => !q || (t.name + t.category + t.description).toLowerCase().includes(q));
+  $('#list').innerHTML = list.length ? `<div class="table-wrap"><table><thead><tr><th>Tool</th><th>${multi ? 'School / storeroom' : 'Storeroom'}</th><th>Category</th><th>Total</th><th>Available</th><th>On loan / requested</th><th>Damaged</th><th></th></tr></thead><tbody>
+    ${list.map(t => `<tr><td><strong>${esc(t.name)}</strong><div class="card-sub">${esc(t.description)}</div></td><td>${multi ? esc(sName(t.schoolId)) + '<div class="card-sub">' + esc(rName(t.storeroomId)) + '</div>' : esc(rName(t.storeroomId))}</td><td>${esc(t.category)}</td>
+    <td>${t.quantityTotal}</td><td>${t.quantityAvailable}</td><td>${loans.filter(l => l.itemId === t.id && l.status === 'active').length}${loans.some(l => l.itemId === t.id && l.status === 'pending') ? ` <span class="badge b-soon">${loans.filter(l => l.itemId === t.id && l.status === 'pending').length} requested</span>` : ''}</td><td>${t.quantityDamaged ? `<span class="badge b-out">${t.quantityDamaged}</span>` : 0}</td>
+    <td>${canManage(t.schoolId) ? `<div class="actions"><button class="btn btn-ghost btn-sm" data-a="edittool" data-id="${esc(t.id)}">Edit</button><button class="btn btn-danger btn-sm" data-a="deltool" data-id="${esc(t.id)}">Delete</button></div>` : ''}</td></tr>`).join('')}</tbody></table></div>`
+    : '<div class="empty"><strong>No tools</strong>Add a tool to start lending.</div>';
+}
+function toolForm(t) {
+  return locFields(t) + `<div class="form-grid"><div class="field"><label for="fName">Tool name</label><input class="input" id="fName" value="${esc(t?.name)}"></div>
+    <div class="field"><label for="fCat">Category</label><input class="input" id="fCat" list="catList" value="${esc(t?.category)}"><datalist id="catList">${[...new Set(get('tools').map(x => x.category))].map(c => `<option value="${esc(c)}">`).join('')}</datalist></div>
+    <div class="field"><label for="fQty">Total quantity</label><input class="input" id="fQty" type="number" min="1" value="${t ? t.quantityTotal : 1}"></div></div>
+    <div class="field"><label for="fDesc">Description</label><textarea class="input" id="fDesc" rows="2">${esc(t?.description)}</textarea></div>`;
+}
+function addTool() {
+  modal({ title: 'Add tool', body: toolForm(), confirmText: 'Save tool', onOpen: ov => bindLoc(ov), onConfirm: ov => {
+    const sid = val(ov, 'fSchool'), name = val(ov, 'fName'), cat = val(ov, 'fCat'), qty = parseInt(val(ov, 'fQty'), 10);
+    if (!guard(sid, 'add tool')) return false;
+    if (!name || !cat || !(qty >= 1)) return fail('Add a name, a category and a quantity of at least 1.');
+    const ts = get('tools'), t = { id:uid(), schoolId:sid, storeroomId:val(ov, 'fRoom'), name, category:cat, quantityTotal:qty, quantityAvailable:qty, quantityDamaged:0, description:val(ov, 'fDesc') };
+    ts.push(t); put('tools', ts); audit('tool_added', 'tool', t.id, sid, `Added ${name} (qty ${qty}) to ${rName(t.storeroomId)}`); toast('Tool added'); render();
+  } });
+}
+function editTool(id) {
+  const t = get('tools').find(x => x.id === id); if (!t || !guard(t.schoolId, 'edit tool')) return;
+  const held = t.quantityTotal - t.quantityAvailable;
+  modal({ title: `Edit ${t.name}`, body: toolForm(t) + (held ? `<div class="hint">${held} on loan or damaged, so the total can't go below ${held}.</div>` : ''), confirmText: 'Save changes', onConfirm: ov => {
+    const name = val(ov, 'fName'), cat = val(ov, 'fCat'), qty = parseInt(val(ov, 'fQty'), 10);
+    if (!name || !cat || !(qty >= Math.max(1, held))) return fail(`Check the fields. Total must be at least ${Math.max(1, held)}.`);
+    const ts = get('tools'), x = ts.find(y => y.id === id);
+    x.name = name; x.category = cat; x.description = val(ov, 'fDesc'); x.storeroomId = val(ov, 'fRoom'); x.quantityAvailable = qty - held; x.quantityTotal = qty;
+    put('tools', ts); audit('tool_edited', 'tool', id, x.schoolId, `Edited ${name} (qty ${qty})`); toast('Changes saved'); render();
+  } });
+}
+function deleteTool(id) {
+  const t = get('tools').find(x => x.id === id); if (!t || !guard(t.schoolId, 'delete tool')) return;
+  if (get('loans').some(l => l.itemId === id && ['active', 'pending'].includes(l.status))) return toast(`${t.name} still has tools on loan or requested. Confirm those returns first.`, true);
+  modal({ title: `Delete ${t.name}?`, danger: true, confirmText: 'Delete tool', body: '<p>This removes the tool from the list. Past transactions stay in the history.</p>', onConfirm: () => {
+    put('tools', get('tools').filter(x => x.id !== id)); audit('tool_deleted', 'tool', id, t.schoolId, `Deleted ${t.name}`); toast('Tool deleted'); render();
+  } });
+}
+function toolReturn(id) {
+  const l = get('loans').find(x => x.id === id); if (!l || !guard(l.schoolId, 'confirm tool return')) return;
+  const prior = get('damage').find(d => d.loanId === id && d.status === 'open');
+  modal({ title: `Confirm return: ${l.itemName}`, confirmText: 'Confirm return', body: `<p>${esc(l.studentName)} (${esc(l.studentIdNo)}) · ref <span class="ref">${esc(l.ref)}</span>${loanStatus(l) === 'overdue' ? '<br><strong>This return is overdue.</strong>' : ''}</p>
+    ${prior ? `<div class="callout">The student reported damage: ${esc(prior.description)}</div>` : ''}
+    <div class="field"><label for="tCond">Condition on return</label><select class="select" id="tCond"><option value="good">Good: return to stock</option><option value="damaged" ${prior ? 'selected' : ''}>Damaged: report damage</option></select></div>
+    <div class="field"><label for="tNote">Damage details <span class="hint">(required if damaged)</span></label><textarea class="input" id="tNote" rows="2">${esc(prior ? prior.description : '')}</textarea></div>`,
+    onConfirm: ov => {
+      const damaged = val(ov, 'tCond') === 'damaged', note = val(ov, 'tNote');
+      if (damaged && !note) return fail('Describe the damage so it can be reported.');
+      const L = get('loans'), x = L.find(y => y.id === id), ts = get('tools'), t = ts.find(y => y.id === x.itemId);
+      if (x.status !== 'active') return fail('This checkout was already handled.');
+      x.status = 'returned'; x.returnedAt = nowIso(); x.confirmedBy = me.name; x.confirmedById = me.id; x.condition = damaged ? 'damaged' : 'good';
+      if (t) { if (damaged) t.quantityDamaged++; else t.quantityAvailable++; }
+      if (damaged) {
+        const D = get('damage'), p = D.find(d => d.loanId === id && d.status === 'open');
+        if (p) { p.stockApplied = true; p.description = note; put('damage', D); x.damageReportId = p.id; audit('damage_confirmed', 'tool', x.itemId, x.schoolId, `Student damage report for ${x.itemName} (${x.ref}) confirmed on return: ${note}`); }
+        else x.damageReportId = createDamage({ itemType:'tool', itemId:x.itemId, name:x.itemName, ref:x.ref, schoolId:x.schoolId, storeroomId:x.storeroomId, loanId:x.id, studentName:x.studentName, description:note, severity:'minor', source:'storeman', stockApplied:true });
+      }
+      put('loans', L); put('tools', ts);
+      audit('tool_returned', 'tool', x.itemId, x.schoolId, `${x.itemName} (${x.ref}) return confirmed from ${x.studentName}. Condition: ${x.condition}.${daysLate(x.returnDue, x.returnedAt) ? ' Returned late.' : ''}`);
+      toast(damaged ? 'Return confirmed and damage recorded' : 'Return confirmed'); render();
+    } });
+}
+
+/* ================= Damage reports ================= */
+function createDamage(d) {
+  const D = get('damage'), r = { id:uid(), at:nowIso(), status:'open', reportedById:me.id, reportedBy:me.name, ...d };
+  D.push(r); put('damage', D);
+  audit('damage_reported', d.itemType, d.itemId, d.schoolId, `Damage report for ${d.name} (${d.ref}): ${d.description}${d.loanId ? ' [linked to sign-out ' + d.loanId.slice(-5) + ']' : ''}`);
+  return r.id;
+}
+function pgDamage() {
+  const rows = vDamage().sort((a, b) => b.at.localeCompare(a.at)), multi = scopeIds().length > 1;
+  $('#main').innerHTML = `<div class="page-head"><div><h2>Damage reports</h2><p>Reports are linked to the item and the sign-out where the damage was found.</p></div></div>${banner()}
+    <div class="panel">${rows.length ? `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Item</th>${multi ? '<th>School</th>' : ''}<th>Details</th><th>Sign-out</th><th>Reported by</th><th>Status</th><th></th></tr></thead><tbody>
+    ${rows.map(d => `<tr><td>${fmtDT(d.at)}</td><td>${typeTag(d.itemType)}<strong>${esc(d.name)}</strong><div class="card-sub"><span class="ref">${esc(d.ref)}</span></div></td>${multi ? `<td>${esc(sName(d.schoolId))}</td>` : ''}
+    <td>${esc(d.description)}${d.severity ? `<div class="card-sub">Severity: ${esc(d.severity)}</div>` : ''}</td><td>${d.loanId ? `${esc(d.studentName || '')}<div class="card-sub">#${esc(d.loanId.slice(-5))}</div>` : '–'}</td><td>${esc(d.reportedBy)}${d.source === 'student' ? '<div class="card-sub">Student report</div>' : ''}</td>
+    <td><span class="badge ${d.status === 'open' ? 'b-out' : 'b-returned'}">${d.status === 'open' ? 'Open' : 'Resolved'}</span>${d.resolution ? `<div class="card-sub">${esc(d.resolution)}</div>` : ''}</td>
+    <td>${d.status === 'open' && canManage(d.schoolId) ? `<div class="actions">${d.stockApplied === false && !d.loanId ? `<button class="btn btn-ghost btn-sm" data-a="takeout" data-id="${esc(d.id)}">Take out of service</button>` : ''}<button class="btn btn-ghost btn-sm" data-a="resolve" data-id="${esc(d.id)}">Resolve</button></div>` : ''}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty"><strong>No damage reports</strong>Reports created during returns and inspections appear here.</div>'}</div>`;
+}
+function resolveDamage(id) {
+  const d = get('damage').find(x => x.id === id); if (!d || !guard(d.schoolId, 'resolve damage')) return;
+  const applied = d.stockApplied !== false;
+  const extra = d.itemType === 'tool' ? (applied ? `<div class="field"><label for="rOut">Outcome</label><select class="select" id="rOut"><option value="repaired">Repaired: return to stock</option><option value="writeoff">Written off: remove from stock</option></select></div>` : '') : '<p class="hint">Use Service on the Machines page to record repairs and return the machine to use.</p>';
+  modal({ title: `Resolve damage: ${d.name}`, confirmText: 'Resolve report', body: `${extra}<div class="field"><label for="rNote">Resolution note</label><textarea class="input" id="rNote" rows="2"></textarea></div>`, onConfirm: ov => {
+    const note = val(ov, 'rNote'); if (!note) return fail('Add a short resolution note.');
+    const D = get('damage'), x = D.find(y => y.id === id); if (x.status !== 'open') return fail('Already resolved.');
+    let text = note;
+    if (x.itemType === 'tool' && x.stockApplied !== false) {
+      const out = val(ov, 'rOut'), ts = get('tools'), t = ts.find(y => y.id === x.itemId);
+      if (t && t.quantityDamaged > 0) { t.quantityDamaged--; if (out === 'repaired') t.quantityAvailable++; else t.quantityTotal--; put('tools', ts); }
+      text = (out === 'repaired' ? 'Repaired. ' : 'Written off. ') + note;
+    }
+    x.status = 'resolved'; x.resolvedAt = nowIso(); x.resolvedBy = me.name; x.resolution = text; put('damage', D);
+    const m = get('machines').find(y => y.id === x.itemId); if (m && x.itemType === 'machine') mEvent(m, 'damage', `Damage report resolved: ${text}`);
+    audit('damage_resolved', x.itemType, x.itemId, x.schoolId, `Damage report for ${x.name} resolved: ${text}`); toast('Report resolved'); render();
+  } });
+}
+
+/* ================= Report damage page ================= */
+function reportItems(type) {
+  const mine = isStudent() ? get('loans').filter(l => l.userId === me.id && ['active', 'return_pending'].includes(l.status)) : [];
+  return (type === 'tool' ? get('tools') : get('machines')).filter(x => isStudent() ? x.schoolId === me.schoolId : (inScope(x.schoolId) && canManage(x.schoolId)))
+    .map(x => ({ x, have: mine.some(l => l.itemId === x.id) })).sort((a, b) => (b.have - a.have) || a.x.name.localeCompare(b.x.name));
+}
+function fillReportItems() {
+  const type = $('#rType').value, multi = !isStudent() && scopeIds().length > 1;
+  $('#rItem').innerHTML = '<option value="">Choose an item</option>' + reportItems(type).map(({ x, have }) => `<option value="${esc(x.id)}">${esc(x.name)}${type === 'machine' ? ' (' + esc(x.refNo) + ')' : ''}${multi ? ' · ' + esc(sName(x.schoolId)) : ''} · ${esc(rName(x.storeroomId))}${have ? ' · you have this' : ''}</option>`).join('');
+}
+function pgReport() {
+  const mine = get('damage').filter(d => d.reportedById === me.id).sort((a, b) => b.at.localeCompare(a.at));
+  $('#main').innerHTML = `<div class="page-head"><div><h2>Report damage</h2><p>${isStudent() ? 'Tell the storeman about a tool or machine that is broken, unsafe or missing parts.' : 'Record damage found in the storeroom. The item is taken out of service straight away when it is in stock.'}</p></div></div>
+    <div class="panel" style="padding:1.25rem"><div class="form-grid">
+      <div class="field"><label for="rType">What is damaged?</label><select class="select" id="rType"><option value="tool">A tool</option><option value="machine">A machine</option></select></div>
+      <div class="field"><label for="rItem">Item</label><select class="select" id="rItem"></select></div>
+      <div class="field"><label for="rSev">How bad is it?</label><select class="select" id="rSev"><option value="minor">Minor: still usable</option><option value="major">Major: not usable</option><option value="unsafe">Unsafe: do not use</option></select></div></div>
+      <div class="field"><label for="rDesc">What happened?</label><textarea class="input" id="rDesc" rows="3" placeholder="Describe the damage, missing parts or the fault"></textarea>${isStudent() ? '<div class="hint">If you currently have this item, your report is linked to your checkout and the storeman checks it when you return it.</div>' : ''}</div>
+      <button class="btn btn-primary" data-a="submitreport">Submit report</button></div>
+    <div class="sec"><h3>${isStudent() ? 'My reports' : 'Reports I filed'}</h3></div>
+    <div class="panel">${mine.length ? `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Item</th><th>Details</th><th>Status</th></tr></thead><tbody>${mine.map(d => `<tr><td>${fmtDT(d.at)}</td><td>${typeTag(d.itemType)}<strong>${esc(d.name)}</strong>${d.itemType === 'machine' ? `<div class="card-sub"><span class="ref">${esc(d.ref)}</span></div>` : ''}</td><td>${esc(d.description)}<div class="card-sub">Severity: ${esc(d.severity)}</div></td>
+      <td><span class="badge ${d.status === 'open' ? 'b-soon' : 'b-returned'}">${d.status === 'open' ? 'With the storeman' : 'Resolved'}</span>${d.resolution ? `<div class="card-sub">${esc(d.resolution)}</div>` : ''}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty"><strong>No reports yet</strong>Reports you submit will show up here.</div>'}</div>`;
+  fillReportItems();
+}
+function applyStock(rid) {
+  const D = get('damage'), d = D.find(x => x.id === rid); if (!d || d.stockApplied !== false) return false;
+  let ok = false;
+  if (d.itemType === 'tool') { const ts = get('tools'), t = ts.find(x => x.id === d.itemId); if (t && t.quantityAvailable >= 1) { t.quantityAvailable--; t.quantityDamaged++; put('tools', ts); ok = true; } }
+  else { const ms = get('machines'), m = ms.find(x => x.id === d.itemId); if (m && ['available', 'unavailable', 'damaged'].includes(m.status)) { if (m.status !== 'damaged') change(m, 'damaged', 'damage', `Taken out of service after a damage report: ${d.description}`, { reportId:d.id }); put('machines', ms); ok = true; } }
+  if (ok) { d.stockApplied = true; put('damage', D); audit('damage_applied', d.itemType, d.itemId, d.schoolId, `${d.name} taken out of service after a damage report`); }
+  return ok;
+}
+function takeOut(id) {
+  const d = get('damage').find(x => x.id === id); if (!d || !guard(d.schoolId, 'take item out of service')) return;
+  const ok = applyStock(id);
+  toast(ok ? 'Taken out of service' : 'Could not take it out of service because none are in stock or it is in use. It updates when returned.', !ok); render();
+}
+function submitReport() {
+  const type = $('#rType').value, itemId = $('#rItem').value, desc = $('#rDesc').value.trim(), sev = $('#rSev').value;
+  if (!itemId) return toast('Choose the item that is damaged.', true);
+  if (!desc) return toast('Describe the damage.', true);
+  const item = (type === 'tool' ? get('tools') : get('machines')).find(x => x.id === itemId); if (!item) return toast('That item no longer exists.', true);
+  if (isStudent() ? !guardStudent(item.schoolId) : !guard(item.schoolId, 'report damage')) return;
+  const loan = isStudent() ? get('loans').find(l => l.itemId === itemId && l.userId === me.id && ['active', 'return_pending'].includes(l.status)) : null;
+  const rid = createDamage({ itemType:type, itemId, name:item.name, ref:type === 'machine' ? item.refNo : (loan ? loan.ref : '–'), schoolId:item.schoolId, storeroomId:item.storeroomId, loanId:loan ? loan.id : null, studentName:loan ? loan.studentName : null, description:desc, severity:sev, source:isStudent() ? 'student' : 'storeman', stockApplied:false });
+  if (type === 'machine') { const ms = get('machines'), m = ms.find(x => x.id === itemId); mEvent(m, 'damage', `Damage reported by ${me.name}: ${desc}`, { reportId:rid }); }
+  let msg = 'Report sent to the storeman.';
+  if (isStoreman()) msg = applyStock(rid) ? 'Damage recorded and the item is out of service.' : 'Damage recorded. It will be applied when the item comes back.';
+  toast(msg); pgReport();
+}
+
+/* ================= Staff: sign out to a student ================= */
+const issueStudents = () => get('users').filter(u => u.role === 'student' && inScope(u.schoolId) && canManage(u.schoolId)).sort((a, b) => a.name.localeCompare(b.name));
+function pgIssue() {
+  $('#main').innerHTML = `<div class="page-head"><div><h2>Sign out to a student</h2><p>Use this for walk-up sign-outs. Student requests made in the app appear in your Queue for approval. Each student can hold one of each tool at a time.</p></div></div>
+    <div class="panel" style="padding:1.25rem"><div class="form-grid">
+      <div class="field"><label for="iFind">Find student</label><input class="input" id="iFind" type="search" placeholder="Name or student ID" autocomplete="off"></div>
+      <div class="field"><label for="iStu">Student</label><select class="select" id="iStu"></select></div></div>
+      <div id="iInfo"></div>
+      <div class="form-grid">
+        <div class="field"><label for="iType">Item type</label><select class="select" id="iType"><option value="tool">Tool</option><option value="machine">Machine</option></select></div>
+        <div class="field"><label for="iItem">Item</label><select class="select" id="iItem"></select></div>
+        <div class="field"><label for="iDue">Expected return date and time</label><input class="input" type="datetime-local" id="iDue"><div class="hint">Up to ${MAX_MACHINE_DAYS} days from now.</div></div></div>
+      <div id="iExtra"></div><button class="btn btn-primary" data-a="submitissue">Sign out to student</button></div><div id="iHold"></div>`;
+  fillIssueStudents();
+}
+function fillIssueStudents() {
+  const q = $('#iFind').value.toLowerCase().trim(), multi = scopeIds().length > 1;
+  const list = issueStudents().filter(u => !q || (u.name + ' ' + u.studentId).toLowerCase().includes(q));
+  $('#iStu').innerHTML = '<option value="">Choose a student</option>' + list.map(u => `<option value="${esc(u.id)}" ${u.id === ui.issueStu ? 'selected' : ''}>${esc(u.name)} (${esc(u.studentId)})${multi ? ' · ' + esc(sName(u.schoolId)) : ''}</option>`).join('');
+  refreshIssue('iStu');
+}
+function refreshIssue(src) {
+  const sid = $('#iStu').value; ui.issueStu = sid;
+  const stu = get('users').find(u => u.id === sid), type = $('#iType').value;
+  const open = stu ? get('loans').filter(l => l.userId === stu.id && OPEN_LOAN.includes(l.status)) : [];
+  const over = open.filter(l => loanStatus(l) === 'overdue');
+  $('#iInfo').innerHTML = stu && over.length ? `<div class="alert">${esc(stu.name)} has ${over.length} overdue item${over.length > 1 ? 's' : ''}. They can't borrow anything until they are returned.</div>` : '';
+  $('#iHold').innerHTML = stu ? `<div class="sec"><h3>Currently with ${esc(stu.name)} (${open.length})</h3></div><div class="panel">${loanTable(open, { student:false, empty:'Nothing signed out', emptyHint:'Items you sign out to this student will show up here.' })}</div>` : '';
+  if (src !== 'iItem') {
+    const items = stu ? (type === 'tool' ? get('tools') : get('machines')).filter(x => x.schoolId === stu.schoolId && canManage(x.schoolId)) : [];
+    $('#iItem').innerHTML = '<option value="">Choose an item</option>' + items.map(x => {
+      const held = open.some(l => l.itemId === x.id), avail = type === 'tool' ? x.quantityAvailable > 0 : x.status === 'available';
+      const label = esc(x.name) + (type === 'machine' ? ` (${esc(x.refNo)})` : '') + ` · ${esc(rName(x.storeroomId))}` + (type === 'tool' ? ` · ${x.quantityAvailable} in stock` : ` · ${esc(MST[x.status][0])}`) + (held ? ' · student has this' : '');
+      return `<option value="${esc(x.id)}" ${!avail || held ? 'disabled' : ''}>${label}</option>`;
+    }).join('');
+    if (src === 'iType' || !$('#iDue').value) $('#iDue').value = toLocalInput(Date.now() + (type === 'tool' ? TOOL_DAYS : 1) * DAY);
+  }
+  const m = type === 'machine' ? get('machines').find(x => x.id === $('#iItem').value) : null;
+  $('#iExtra').innerHTML = m ? `${m.requiresAuth ? '<div class="callout">This machine needs approval. Signing it out counts as your approval.</div>' : ''}${m.requiresSafetyCheck ? `<div class="field"><label>Safety check: confirm the student has agreed to each point</label>${SAFETY_CHECKS.map((t, i) => `<label class="check"><input type="checkbox" data-isafe="${i}"> ${esc(t)}</label>`).join('')}</div>` : ''}` : '';
+}
+function submitIssue() {
+  const stu = get('users').find(u => u.id === $('#iStu').value), type = $('#iType').value, itemId = $('#iItem').value;
+  if (!stu) return toast('Choose the student first.', true);
+  if (!itemId) return toast('Choose the item to sign out.', true);
+  if (!guard(stu.schoolId, 'sign out to student')) return;
+  const dueMs = new Date($('#iDue').value).getTime();
+  if (!dueMs || dueMs < Date.now() + 1800000) return toast('Choose a return time at least 30 minutes from now.', true);
+  if (dueMs > Date.now() + MAX_MACHINE_DAYS * DAY + 60000) return toast(`The return time can be at most ${MAX_MACHINE_DAYS} days from now.`, true);
+  const L = get('loans');
+  if (L.some(l => l.userId === stu.id && loanStatus(l) === 'overdue')) return toast(`${stu.name} has overdue items and can't borrow until they are returned.`, true);
+  if (L.some(l => l.userId === stu.id && l.itemId === itemId && OPEN_LOAN.includes(l.status))) return toast(`${stu.name} already has this item.`, true);
+  const t = nowIso(), due = new Date(dueMs).toISOString();
+  const base = { id:uid(), userId:stu.id, studentName:stu.name, studentIdNo:stu.studentId, requestedAt:t, signedOutAt:t, returnDue:due, status:'active', issuedBy:me.name, issuedById:me.id };
+  if (type === 'tool') {
+    const ts = get('tools'), tool = ts.find(x => x.id === itemId);
+    if (!tool || tool.schoolId !== stu.schoolId) return toast('That tool belongs to a different school.', true);
+    if (tool.quantityAvailable < 1) return toast('That tool is out of stock.', true);
+    tool.quantityAvailable--; put('tools', ts);
+    const ref = `TL-${tool.id.slice(-3).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+    L.push({ ...base, itemType:'tool', itemId, itemName:tool.name, ref, schoolId:tool.schoolId, storeroomId:tool.storeroomId }); put('loans', L);
+    audit('tool_signed_out', 'tool', itemId, tool.schoolId, `${tool.name} signed out to ${stu.name} (${stu.studentId}) by ${me.name}. Ref ${ref}. Due ${fmtDT(due)}.`);
+    toast(`${tool.name} signed out to ${stu.name}. Reference ${ref}`);
+  } else {
+    const ms = get('machines'), m = ms.find(x => x.id === itemId);
+    if (!m || m.schoolId !== stu.schoolId) return toast('That machine belongs to a different school.', true);
+    if (m.status !== 'available') return toast(`That machine is ${MST[m.status][0].toLowerCase()}.`, true);
+    let items = [];
+    if (m.requiresSafetyCheck) { if (![...document.querySelectorAll('[data-isafe]')].every(b => b.checked)) return toast('Tick every safety confirmation to continue.', true); items = SAFETY_CHECKS.slice(); }
+    const loan = { ...base, itemType:'machine', itemId, itemName:m.name, ref:m.refNo, schoolId:m.schoolId, storeroomId:m.storeroomId, authRequired:m.requiresAuth, authStatus:m.requiresAuth ? 'approved' : 'not_required',
+      approvedBy:m.requiresAuth ? me.name : undefined, approvedById:m.requiresAuth ? me.id : undefined, approvedAt:m.requiresAuth ? t : undefined, safety:{ required:m.requiresSafetyCheck, confirmedAt:items.length ? t : null, items, recordedBy:me.name } };
+    L.push(loan); put('loans', L); m.currentLoanId = loan.id;
+    change(m, 'signed_out', 'issued', `Signed out to ${stu.name} (${stu.studentId}) by ${me.name}. Due ${fmtDT(due)}.${m.requiresAuth ? ' Approved by the storeman.' : ''}`); put('machines', ms);
+    audit('machine_signed_out', 'machine', itemId, m.schoolId, `${m.name} (${m.refNo}) signed out to ${stu.name} (${stu.studentId}) by ${me.name}. Due ${fmtDT(due)}.${items.length ? ' Safety check confirmed.' : ''}`);
+    toast(`${m.name} signed out to ${stu.name}.`);
+  }
+  $('#iDue').value = ''; pgIssue();
+}
+
+/* ================= Admin: schools and staff ================= */
+function adminOnly(what) {
+  if (me && isAdmin()) return true;
+  audit('access_denied', 'system', '', null, 'Blocked: ' + what); toast('Only the PTSA administrator can do that.', true); return false;
+}
+const emailTaken = e => get('users').some(u => u.email.toLowerCase() === e.toLowerCase());
+async function makeUser(name, email, pw, role, schoolIds) { const salt = uid(); return { id:uid(), email:email.toLowerCase(), name, role, schoolIds, salt, passHash: await hash(pw, salt) }; }
+const staffFields = p => `<div class="form-grid"><div class="field"><label for="${p}Name">Full name</label><input class="input" id="${p}Name"></div>
+  <div class="field"><label for="${p}Email">Email</label><input class="input" id="${p}Email" type="email"></div>
+  <div class="field"><label for="${p}Pw">Temporary password</label><input class="input" id="${p}Pw" autocomplete="off"><div class="hint">At least 6 characters.</div></div></div>`;
+function readStaff(ov, p) {
+  const name = val(ov, p + 'Name'), email = val(ov, p + 'Email').toLowerCase(), pw = ov.querySelector('#' + p + 'Pw').value;
+  if (!name) { fail('Enter the full name.'); return null; }
+  if (!/^\S+@\S+\.\S+$/.test(email)) { fail('Enter a valid email address.'); return null; }
+  if (pw.length < 6) { fail('The password must be at least 6 characters.'); return null; }
+  if (emailTaken(email)) { fail('That email is already used by another account.'); return null; }
+  return { name, email, pw };
+}
+function pgAdmin() {
+  const schools = get('schools'), rooms = get('storerooms'), users = get('users');
+  const storemen = users.filter(u => u.role === 'storeman'), mgrs = users.filter(u => u.role === 'manager');
+  $('#main').innerHTML = `<div class="page-head"><div><h2>Schools and staff</h2><p>Every PTSA school has its own storeman. Storemen only see and manage their own school.</p></div><button class="btn btn-primary" data-a="addschool">Add school</button></div>
+    <div class="panel"><div class="table-wrap"><table><thead><tr><th>School</th><th>Storerooms</th><th>Storeman</th><th>Students</th><th></th></tr></thead><tbody>
+    ${schools.map(sc => { const sm = storemen.filter(u => u.schoolIds.includes(sc.id)); return `<tr><td><strong>${esc(sc.name)}</strong><div class="card-sub">Code ${esc(sc.code)}</div></td>
+      <td>${rooms.filter(r => r.schoolId === sc.id).map(r => esc(r.name)).join('<br>') || '–'}</td>
+      <td>${sm.length ? sm.map(u => `${esc(u.name)}<div class="card-sub">${esc(u.email)}</div>`).join('') : '<span class="badge b-out">No storeman</span>'}</td>
+      <td>${users.filter(u => u.role === 'student' && u.schoolId === sc.id).length}</td>
+      <td><div class="actions"><button class="btn btn-ghost btn-sm" data-a="addroom" data-id="${esc(sc.id)}">Add storeroom</button><button class="btn btn-ghost btn-sm" data-a="addstoreman" data-id="${esc(sc.id)}">Add storeman</button><button class="btn btn-ghost btn-sm" data-a="editcode" data-id="${esc(sc.id)}">Edit name / code</button><button class="btn btn-danger btn-sm" data-a="delschool" data-id="${esc(sc.id)}">Delete</button></div></td></tr>`; }).join('')}</tbody></table></div></div>
+    <div class="sec"><h3>Storemen (${storemen.length})</h3></div><div class="panel">${storemen.length ? `<div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>School</th><th></th></tr></thead><tbody>
+    ${storemen.map(u => `<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${u.schoolIds.map(id => esc(sName(id))).join(', ')}</td><td><div class="actions"><button class="btn btn-ghost btn-sm" data-a="pwreset" data-id="${esc(u.id)}">Reset password</button><button class="btn btn-danger btn-sm" data-a="rmuser" data-id="${esc(u.id)}">Remove</button></div></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty"><strong>No storemen yet</strong>Add a school to create its storeman.</div>'}</div>
+    <div class="sec"><h3>Regional managers (${mgrs.length})</h3><button class="btn btn-ghost btn-sm" data-a="addmgr">Add regional manager</button></div><div class="panel">${mgrs.length ? `<div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Schools monitored (read-only)</th><th></th></tr></thead><tbody>
+    ${mgrs.map(u => `<tr><td>${esc(u.name)}</td><td>${esc(u.email)}</td><td>${u.schoolIds.map(id => esc(sName(id))).join(', ') || '–'}</td><td><div class="actions"><button class="btn btn-ghost btn-sm" data-a="editmgr" data-id="${esc(u.id)}">Change schools</button><button class="btn btn-ghost btn-sm" data-a="pwreset" data-id="${esc(u.id)}">Reset password</button><button class="btn btn-danger btn-sm" data-a="rmuser" data-id="${esc(u.id)}">Remove</button></div></td></tr>`).join('')}</tbody></table></div>` : '<div class="empty"><strong>No regional managers</strong></div>'}</div>
+    <p class="hint">Changes to a person's schools apply the next time they sign in.</p>`;
+}
+function deleteSchool(sid) {
+  if (!adminOnly('delete school')) return;
+  const sch = get('schools').find(x => x.id === sid); if (!sch) return;
+  const n = k => get(k).filter(x => x.schoolId === sid).length, us = get('users');
+  const staff = us.filter(u => u.role === 'storeman' && u.schoolIds.includes(sid)).length, stu = us.filter(u => u.role === 'student' && u.schoolId === sid).length;
+  modal({ title: `Delete ${sch.name}?`, confirmText: 'Delete school', danger: true, body: `<p>This permanently deletes <strong>${esc(sch.name)}</strong> and everything in it: ${n('storerooms')} storeroom(s), ${n('tools')} tool type(s), ${n('machines')} machine(s), ${n('loans')} checkout record(s), ${stu} student account(s) and ${staff} storeman account(s) who work only at this school.</p><p>This cannot be undone. Type the school code <strong>${esc(sch.code)}</strong> to confirm.</p><div class="field"><input class="input" id="delConfirm" autocomplete="off"></div>`, onConfirm: ov => {
+    if (val(ov, 'delConfirm').toUpperCase() !== sch.code) return fail('Type the school code exactly to confirm.');
+    ['storerooms', 'tools', 'machines', 'events', 'loans', 'damage'].forEach(k => put(k, get(k).filter(x => x.schoolId !== sid)));
+    put('users', get('users').filter(u => !(u.role === 'student' && u.schoolId === sid) && !(u.role === 'storeman' && u.schoolIds.length === 1 && u.schoolIds[0] === sid)).map(u => (u.schoolIds && u.schoolIds.includes(sid)) ? { ...u, schoolIds: u.schoolIds.filter(x => x !== sid) } : u));
+    put('schools', get('schools').filter(x => x.id !== sid));
+    audit('school_deleted', 'school', sid, null, `Deleted school ${sch.name} (${sch.code})`); toast(`${sch.name} deleted`); render();
+  } });
+}
+function editSchoolCode(sid) {
+  if (!adminOnly('change school code')) return;
+  const sch = get('schools').find(x => x.id === sid); if (!sch) return;
+  modal({ title: `Edit school: ${sch.name}`, confirmText: 'Save changes', body: `<div class="field"><label for="nname">School name</label><input class="input" id="nname" value="${esc(sch.name)}"></div><div class="field"><label for="ncode">School code</label><input class="input" id="ncode" maxlength="4" value="${esc(sch.code)}" placeholder="e.g. AGP"><div class="hint">2 to 4 letters or numbers. Machine references for this school are renamed to match.</div></div>`, onConfirm: ov => {
+    const code = val(ov, 'ncode').toUpperCase(), nm = val(ov, 'nname');
+    if (!nm) return fail('Enter the school name.');
+    if (!/^[A-Z0-9]{2,4}$/.test(code)) return fail('Use 2 to 4 letters or numbers.');
+    const all = get('schools'); if (all.some(x => x.id !== sid && (x.code === code || x.name.toLowerCase() === nm.toLowerCase()))) return fail('Another school already uses that name or code.');
+    const old = sch.code, x = all.find(y => y.id === sid); x.code = code; x.name = nm; put('schools', all);
+    const ms = get('machines'); ms.forEach(m => { if (m.schoolId === sid && m.refNo.startsWith(old)) m.refNo = code + m.refNo.slice(old.length); }); put('machines', ms);
+    audit('school_edited', 'school', sid, sid, `School edited: ${sch.name} (${old}) is now ${nm} (${code})`); toast('School updated'); render();
+  } });
+}
+function addSchool() {
+  if (!adminOnly('add school')) return;
+  modal({ title: 'Add school', wide: true, confirmText: 'Add school and storeman', body: `<div class="form-grid"><div class="field"><label for="scName">School name</label><input class="input" id="scName"></div>
+    <div class="field"><label for="scCode">Short code</label><input class="input" id="scCode" maxlength="4" placeholder="e.g. AGP"><div class="hint">2 to 4 letters or numbers. Machine references are this code plus a number, like AGP24511.</div></div>
+    <div class="field"><label for="scRoom">First storeroom</label><input class="input" id="scRoom" value="Main Storeroom"></div></div>
+    <h3 style="font-size:1.05rem;margin:.5rem 0">The school's storeman</h3>${staffFields('st')}`, onConfirm: ov => {
+    const name = val(ov, 'scName'), code = val(ov, 'scCode').toUpperCase(), room = val(ov, 'scRoom');
+    if (!name || !/^[A-Z0-9]{2,4}$/.test(code) || !room) return fail('Enter the school name, a 2 to 4 letter code and the first storeroom.');
+    const sc = get('schools'); if (sc.some(x => x.name.toLowerCase() === name.toLowerCase() || x.code === code)) return fail('A school with that name or code already exists.');
+    const st = readStaff(ov, 'st'); if (!st) return false;
+    const school = { id:uid(), name, code }, rm = { id:uid(), schoolId:school.id, name:room };
+    makeUser(st.name, st.email, st.pw, 'storeman', [school.id]).then(u => {
+      put('schools', get('schools').concat(school)); put('storerooms', get('storerooms').concat(rm)); put('users', get('users').concat(u));
+      audit('school_added', 'school', school.id, school.id, `Added school ${name} (${code}) with storeroom ${room} and storeman ${st.name} (${st.email})`); toast(`${name} added with its storeman.`); render();
+    });
+  } });
+}
+function addStoreroom(sid) {
+  if (!adminOnly('add storeroom')) return;
+  modal({ title: `Add storeroom: ${sName(sid)}`, confirmText: 'Add storeroom', body: '<div class="field"><label for="rmName">Storeroom name</label><input class="input" id="rmName"></div>', onConfirm: ov => {
+    const name = val(ov, 'rmName'); if (!name) return fail('Enter a storeroom name.');
+    if (get('storerooms').some(r => r.schoolId === sid && r.name.toLowerCase() === name.toLowerCase())) return fail('This school already has a storeroom with that name.');
+    put('storerooms', get('storerooms').concat({ id:uid(), schoolId:sid, name })); audit('storeroom_added', 'school', sid, sid, `Added storeroom ${name}`); toast('Storeroom added'); render();
+  } });
+}
+function addStoreman(sid) {
+  if (!adminOnly('add storeman')) return;
+  modal({ title: `Add storeman: ${sName(sid)}`, wide: true, confirmText: 'Create storeman account', body: staffFields('sm'), onConfirm: ov => {
+    const st = readStaff(ov, 'sm'); if (!st) return false;
+    makeUser(st.name, st.email, st.pw, 'storeman', [sid]).then(u => { put('users', get('users').concat(u)); audit('storeman_added', 'user', u.id, sid, `Added storeman ${st.name} (${st.email}) to ${sName(sid)}`); toast('Storeman added'); render(); });
+  } });
+}
+function schoolChecks(sel) { return `<div class="field"><label>Schools to monitor</label>${get('schools').map(x => `<label class="check"><input type="checkbox" data-ms="${esc(x.id)}" ${sel.includes(x.id) ? 'checked' : ''}> ${esc(x.name)}</label>`).join('')}</div>`; }
+const checkedSchools = ov => [...ov.querySelectorAll('[data-ms]')].filter(b => b.checked).map(b => b.dataset.ms);
+function addManager() {
+  if (!adminOnly('add manager')) return;
+  modal({ title: 'Add regional manager', wide: true, confirmText: 'Create account', body: staffFields('mg') + schoolChecks([]) + '<p class="hint">Regional managers have read-only access to the schools you choose.</p>', onConfirm: ov => {
+    const st = readStaff(ov, 'mg'); if (!st) return false; const ids = checkedSchools(ov); if (!ids.length) return fail('Choose at least one school.');
+    makeUser(st.name, st.email, st.pw, 'manager', ids).then(u => { put('users', get('users').concat(u)); audit('manager_added', 'user', u.id, ids[0], `Added regional manager ${st.name} (${st.email}) for ${ids.map(sName).join(', ')}`); toast('Regional manager added'); render(); });
+  } });
+}
+function editManager(id) {
+  if (!adminOnly('edit manager')) return;
+  const u = get('users').find(x => x.id === id && x.role === 'manager'); if (!u) return;
+  modal({ title: `Schools for ${u.name}`, confirmText: 'Save', body: schoolChecks(u.schoolIds), onConfirm: ov => {
+    const ids = checkedSchools(ov); if (!ids.length) return fail('Choose at least one school.');
+    const us = get('users'), x = us.find(y => y.id === id); x.schoolIds = ids; put('users', us);
+    audit('manager_schools_updated', 'user', id, ids[0], `${u.name} now monitors ${ids.map(sName).join(', ')}`); toast('Schools updated'); render();
+  } });
+}
+function removeUser(id) {
+  if (!adminOnly('remove user')) return;
+  const u = get('users').find(x => x.id === id); if (!u || !['storeman', 'manager'].includes(u.role)) return;
+  if (u.role === 'storeman') {
+    const lone = u.schoolIds.filter(sid => !get('users').some(x => x.role === 'storeman' && x.id !== id && x.schoolIds.includes(sid)));
+    if (lone.length) return toast(`${sName(lone[0])} needs at least one storeman. Add another storeman before removing this one.`, true);
+  }
+  modal({ title: `Remove ${u.name}?`, danger: true, confirmText: 'Remove account', body: '<p>They will no longer be able to sign in. Their past actions stay in the history and audit log.</p>', onConfirm: () => {
+    put('users', get('users').filter(x => x.id !== id)); audit('user_removed', 'user', id, u.schoolIds && u.schoolIds[0], `Removed ${u.role} account for ${u.name} (${u.email})`); toast('Account removed'); render();
+  } });
+}
+function resetPassword(id) {
+  if (!adminOnly('reset password')) return;
+  const u = get('users').find(x => x.id === id); if (!u || !['storeman', 'manager'].includes(u.role)) return;
+  modal({ title: `Reset password: ${u.name}`, confirmText: 'Set password', body: '<div class="field"><label for="npw">New temporary password</label><input class="input" id="npw" autocomplete="off"><div class="hint">At least 6 characters.</div></div>', onConfirm: ov => {
+    const pw = ov.querySelector('#npw').value; if (pw.length < 6) return fail('The password must be at least 6 characters.');
+    const salt = uid(); hash(pw, salt).then(h => { const us = get('users'), x = us.find(y => y.id === id); x.salt = salt; x.passHash = h; put('users', us); audit('password_reset', 'user', id, u.schoolIds && u.schoolIds[0], `Password reset for ${u.name} (${u.email})`); toast('Password updated'); });
+  } });
+}
+
+/* ================= Staff: machines ================= */
+const MSF = [['all', 'All'], ['available', 'Available'], ['signed_out', 'Signed out'], ['awaiting_inspection', 'Awaiting inspection'], ['service', 'Maintenance / repair'], ['damaged', 'Damaged'], ['unavailable', 'Unavailable'], ['retired', 'Retired']];
+function pgMachinesStaff() {
+  $('#main').innerHTML = `<div class="page-head"><div><h2>Machines</h2><p>Register, inspect, service and retire machines. Every change is logged.</p></div>${isStoreman() ? '<button class="btn btn-primary" data-a="addmach">Register machine</button>' : ''}</div>${banner()}
+    <div class="toolbar"><input class="input" data-search="search" type="search" placeholder="Search name, reference, brand, serial" aria-label="Search machines" value="${esc(ui.search)}"></div>
+    <div class="chips">${MSF.map(([k, l]) => `<button class="chip" data-a="mstatus" data-id="${k}" aria-pressed="${ui.mStatus === k}">${l}</button>`).join('')}</div><div class="panel" id="list"></div>`;
+  drawMachTable();
+}
+function drawMachTable() {
+  const q = ui.search.toLowerCase(), multi = scopeIds().length > 1;
+  const list = vMachines().filter(m => (ui.mStatus === 'all' || (ui.mStatus === 'service' ? ['under_maintenance', 'under_repair'].includes(m.status) : m.status === ui.mStatus)) && (!q || (m.name + m.refNo + m.brand + m.model + m.serial + m.category).toLowerCase().includes(q)));
+  $('#list').innerHTML = list.length ? `<div class="table-wrap"><table><thead><tr><th>Reference</th><th>Machine</th><th>${multi ? 'School / storeroom' : 'Storeroom / location'}</th><th>Condition</th><th>Status</th><th></th></tr></thead><tbody>
+    ${list.map(m => `<tr><td><span class="ref">${esc(m.refNo)}</span></td><td><strong>${esc(m.name)}</strong><div class="card-sub">${esc(m.brand)} ${esc(m.model)} · S/N ${esc(m.serial) || '–'}</div>${flagsOf(m)}</td>
+    <td>${multi ? esc(sName(m.schoolId)) + '<div class="card-sub">' : ''}${esc(rName(m.storeroomId))}${multi ? '</div>' : ''}<div class="card-sub">${esc(m.location)}</div></td><td>${esc(m.condition)}</td><td>${mbadge(m)}</td>
+    <td><div class="actions">${canManage(m.schoolId) ? `<button class="btn btn-ghost btn-sm" data-a="editmach" data-id="${esc(m.id)}">Edit</button><button class="btn btn-ghost btn-sm" data-a="inspmach" data-id="${esc(m.id)}">Inspect</button><button class="btn btn-ghost btn-sm" data-a="service" data-id="${esc(m.id)}">Service</button>` : ''}<button class="btn btn-ghost btn-sm" data-a="history" data-id="${esc(m.id)}">History</button></div></td></tr>`).join('')}</tbody></table></div>`
+    : '<div class="empty"><strong>No machines found</strong>Adjust the search or status filter.</div>';
+}
+function nextRef(sid) {
+  const code = get('schools').find(s => s.id === sid)?.code || 'M', nums = get('machines').filter(m => m.schoolId === sid).map(m => parseInt((m.refNo.match(/(\d+)$/) || [])[1], 10) || 0);
+  return `${code}${Math.max(24510, ...nums) + 1}`;
+}
+function machineForm(m) {
+  const sid = m?.schoolId || mySchoolIds()[0];
+  return locFields(m) + `<div class="form-grid"><div class="field"><label for="fRef">Reference number</label><input class="input" id="fRef" value="${esc(m ? m.refNo : nextRef(sid))}"><div class="hint">Must be unique within the school.</div></div>
+    <div class="field"><label for="fName">Machine name</label><input class="input" id="fName" value="${esc(m?.name)}"></div>
+    <div class="field"><label for="fCat">Category</label><input class="input" id="fCat" list="mcat" value="${esc(m?.category)}"><datalist id="mcat">${[...new Set(get('machines').map(x => x.category))].map(c => `<option value="${esc(c)}">`).join('')}</datalist></div>
+    <div class="field"><label for="fBrand">Brand</label><input class="input" id="fBrand" value="${esc(m?.brand)}"></div><div class="field"><label for="fModel">Model</label><input class="input" id="fModel" value="${esc(m?.model)}"></div>
+    <div class="field"><label for="fSerial">Serial number</label><input class="input" id="fSerial" value="${esc(m?.serial)}"></div>
+    <div class="field"><label for="fCond">Condition</label><select class="select" id="fCond">${CONDITIONS.map(c => `<option ${m ? (m.condition === c ? 'selected' : '') : (c === 'Good' ? 'selected' : '')}>${c}</option>`).join('')}</select></div>
+    <div class="field"><label for="fLoc">Location in storeroom</label><input class="input" id="fLoc" value="${esc(m?.location)}"></div></div>
+    <label class="check"><input type="checkbox" id="fAuth" ${m?.requiresAuth ? 'checked' : ''}> Needs storeman approval or supervision before it is issued</label>
+    <label class="check"><input type="checkbox" id="fSafe" ${m ? (m.requiresSafetyCheck ? 'checked' : '') : 'checked'}> Student must confirm a safety check when signing out</label>`;
+}
+function readMachine(ov, id) {
+  const sid = val(ov, 'fSchool'), ref = val(ov, 'fRef'), name = val(ov, 'fName');
+  if (!guard(sid, 'save machine')) return null;
+  if (!ref || !name || !val(ov, 'fCat') || !val(ov, 'fBrand') || !val(ov, 'fModel')) { fail('Fill in the reference, name, category, brand and model.'); return null; }
+  if (get('machines').some(m => m.schoolId === sid && m.refNo.toLowerCase() === ref.toLowerCase() && m.id !== id)) { fail(`Reference ${ref} is already used at this school.`); return null; }
+  return { schoolId:sid, storeroomId:val(ov, 'fRoom'), refNo:ref, name, category:val(ov, 'fCat'), brand:val(ov, 'fBrand'), model:val(ov, 'fModel'), serial:val(ov, 'fSerial'), condition:val(ov, 'fCond'), location:val(ov, 'fLoc'), requiresAuth:chk(ov, 'fAuth'), requiresSafetyCheck:chk(ov, 'fSafe') };
+}
+function addMachine() {
+  modal({ title: 'Register machine', wide: true, body: machineForm(), confirmText: 'Register machine', onOpen: ov => { const ref = ov.querySelector('#fRef'); let last = ref.value; bindLoc(ov, sid => { if (ref.value === last) ref.value = last = nextRef(sid); }); }, onConfirm: ov => {
+    const d = readMachine(ov, null); if (!d) return false;
+    const ms = get('machines'), m = { id:uid(), ...d, status:'available', currentLoanId:null, createdAt:nowIso() };
+    ms.push(m); put('machines', ms); mEvent(m, 'registered', `Registered in ${rName(m.storeroomId)}. Condition: ${m.condition}.`);
+    audit('machine_registered', 'machine', m.id, m.schoolId, `Registered ${m.name} (${m.refNo}), ${m.brand} ${m.model}, S/N ${m.serial || '–'}`); toast('Machine registered'); render();
+  } });
+}
+function editMachine(id) {
+  const m = get('machines').find(x => x.id === id); if (!m || !guard(m.schoolId, 'edit machine')) return;
+  modal({ title: `Edit ${m.name}`, wide: true, body: machineForm(m), confirmText: 'Save changes', onConfirm: ov => {
+    const d = readMachine(ov, id); if (!d) return false;
+    const ms = get('machines'), x = ms.find(y => y.id === id); Object.assign(x, d); put('machines', ms);
+    mEvent(x, 'edited', 'Machine details updated.'); audit('machine_edited', 'machine', id, x.schoolId, `Edited ${x.name} (${x.refNo})`); toast('Changes saved'); render();
+  } });
+}
+const outcomeFields = (cond, withLoan) => `<div class="form-grid"><div class="field"><label for="iCond">Condition</label><select class="select" id="iCond">${CONDITIONS.map(c => `<option ${c === cond ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+  <div class="field"><label for="iOut">Result</label><select class="select" id="iOut">${Object.entries(OUTCOMES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}</select></div></div>
+  <div class="field"><label for="iFaults">Faults found</label><textarea class="input" id="iFaults" rows="2" placeholder="None"></textarea></div>
+  ${withLoan ? '<div class="field"><label for="iMissing">Missing components</label><textarea class="input" id="iMissing" rows="2" placeholder="None"></textarea></div>' : ''}
+  <div class="field"><label for="iDmg">Damage details <span class="hint">(required if damaged or needs repair)</span></label><textarea class="input" id="iDmg" rows="2"></textarea></div>
+  <div class="field"><label for="iSev">Damage severity</label><select class="select" id="iSev"><option value="minor">Minor</option><option value="major">Major</option><option value="unsafe">Unsafe to use</option></select></div>`;
+function applyOutcome(ms, m, ov, loan) {
+  const out = val(ov, 'iOut'), cond = val(ov, 'iCond'), faults = val(ov, 'iFaults'), missing = val(ov, 'iMissing'), dmg = val(ov, 'iDmg');
+  const to = { ok:'available', needs_maintenance:'under_maintenance', damaged:'damaged', needs_repair:'under_repair' }[out];
+  const prior = loan ? get('damage').find(d => d.loanId === loan.id && d.status === 'open') : null, hasMissing = missing && missing.toLowerCase() !== 'none';
+  let reportId = null;
+  if ((out === 'damaged' || out === 'needs_repair') && !dmg && !prior) { fail('Describe the damage so a report can be created.'); return null; }
+  if (out === 'ok' && hasMissing) { fail('Components are missing, so choose a result other than "Undamaged".'); return null; }
+  m.condition = cond;
+  if (out === 'damaged' || out === 'needs_repair') {
+    const text = (dmg || (prior && prior.description) || '') + (hasMissing ? ` Missing: ${missing}.` : '');
+    if (prior) { const D = get('damage'), p = D.find(d => d.id === prior.id); p.description = text; p.severity = val(ov, 'iSev'); p.stockApplied = true; put('damage', D); reportId = p.id; audit('damage_confirmed', 'machine', m.id, m.schoolId, `Student damage report for ${m.name} (${m.refNo}) confirmed at inspection: ${text}`); }
+    else reportId = createDamage({ itemType:'machine', itemId:m.id, name:m.name, ref:m.refNo, schoolId:m.schoolId, storeroomId:m.storeroomId, loanId:loan ? loan.id : null, studentName:loan ? loan.studentName : null, description:text, severity:val(ov, 'iSev'), source:'storeman', stockApplied:true });
+  }
+  const summary = `Condition: ${cond}. Result: ${OUTCOMES[out]}.${faults ? ' Faults: ' + faults + '.' : ''}${hasMissing ? ' Missing: ' + missing + '.' : ''}`;
+  return { out, to, cond, faults, missing, reportId, summary };
+}
+function inspectMachine(id) {
+  const m = get('machines').find(x => x.id === id); if (!m || !guard(m.schoolId, 'inspect machine')) return;
+  if (!['available', 'unavailable', 'damaged'].includes(m.status)) return toast(`${m.name} is ${MST[m.status][0].toLowerCase()}. Use the queue or Service for it.`, true);
+  modal({ title: `Inspect ${m.name}`, body: `<p class="hint">${esc(m.refNo)} · currently ${esc(MST[m.status][0].toLowerCase())}</p>` + outcomeFields(m.condition, false), confirmText: 'Record inspection', onConfirm: ov => {
+    const ms = get('machines'), x = ms.find(y => y.id === id), r = applyOutcome(ms, x, ov, null); if (!r) return false;
+    if (r.to !== x.status) change(x, r.to, 'inspection', `Inspection recorded. ${r.summary}`, { reportId:r.reportId }); else mEvent(x, 'inspection', `Inspection recorded. ${r.summary}`, { reportId:r.reportId });
+    put('machines', ms); audit('machine_inspected', 'machine', id, x.schoolId, `${x.name} (${x.refNo}) inspected. ${r.summary}`); toast('Inspection recorded'); render();
+  } });
+}
+function serviceMachine(id) {
+  const m = get('machines').find(x => x.id === id); if (!m || !guard(m.schoolId, 'service machine')) return;
+  const s = m.status, opts = [];
+  if (['available', 'unavailable', 'damaged'].includes(s)) opts.push(['maintenance_start', 'Send for maintenance'], ['repair_start', 'Send for repair']);
+  if (s === 'under_maintenance') opts.push(['maintenance_done', 'Complete maintenance: return to service']);
+  if (s === 'under_repair') opts.push(['repair_done', 'Complete repair: return to service']);
+  if (s === 'available') opts.push(['unavailable', 'Mark unavailable']);
+  if (s === 'unavailable') opts.push(['available', 'Mark available']);
+  if (['available', 'unavailable', 'damaged', 'under_maintenance', 'under_repair'].includes(s)) opts.push(['retire', 'Retire machine']);
+  if (!opts.length) return toast(`${m.name} is ${MST[s][0].toLowerCase()}. Handle it from the Queue.`, true);
+  modal({ title: `Service ${m.name}`, body: `<p class="hint">${esc(m.refNo)} · currently ${esc(MST[s][0].toLowerCase())}</p><div class="field"><label for="sAct">Action</label><select class="select" id="sAct">${opts.map(([k, l]) => `<option value="${k}">${l}</option>`).join('')}</select></div>
+    <div class="field"><label for="sCond">Condition afterwards <span class="hint">(for completed work)</span></label><select class="select" id="sCond">${CONDITIONS.map(c => `<option ${c === m.condition ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+    <div class="field"><label for="sNote">Notes</label><textarea class="input" id="sNote" rows="2" placeholder="What was done or why"></textarea></div>`, confirmText: 'Save', onConfirm: ov => {
+    const act = val(ov, 'sAct'), note = val(ov, 'sNote'); if (!note) return fail('Add a short note for the history.');
+    const ms = get('machines'), x = ms.find(y => y.id === id); if (!guard(x.schoolId, 'service machine')) return false;
+    const map = { maintenance_start:['under_maintenance', 'maintenance', 'Sent for maintenance'], maintenance_done:['available', 'maintenance', 'Maintenance completed'], repair_start:['under_repair', 'repair', 'Sent for repair'], repair_done:['available', 'repair', 'Repair completed'], unavailable:['unavailable', 'status', 'Marked unavailable'], available:['available', 'status', 'Marked available'], retire:['retired', 'retired', 'Retired from service'] };
+    const [to, type, label] = map[act];
+    if (act.endsWith('_done')) x.condition = val(ov, 'sCond');
+    change(x, to, type, `${label}. ${note}`);
+    if (act === 'repair_done') { const D = get('damage'); D.filter(d => d.itemId === id && d.status === 'open').forEach(d => { d.status = 'resolved'; d.resolvedAt = nowIso(); d.resolvedBy = me.name; d.resolution = 'Repaired. ' + note; }); put('damage', D); }
+    put('machines', ms); audit('machine_' + type, 'machine', id, x.schoolId, `${x.name} (${x.refNo}): ${label}. ${note}`); toast(label); render();
+  } });
+}
+function historyModal(id) {
+  const m = get('machines').find(x => x.id === id); if (!m || isStudent() || !inScope(m.schoolId)) return;
+  const loans = get('loans').filter(l => l.itemType === 'machine' && l.itemId === id).sort((a, b) => b.requestedAt.localeCompare(a.requestedAt));
+  const ev = get('events').filter(e => e.machineId === id).sort((a, b) => b.at.localeCompare(a.at)), dmg = get('damage').filter(d => d.itemType === 'machine' && d.itemId === id).sort((a, b) => b.at.localeCompare(a.at));
+  const res = l => { const s = loanStatus(l); if (s === 'returned') { const d = daysLate(l.returnDue, l.returnedAt); return d ? `<span class="badge b-overdue">Returned ${d}d late</span>` : '<span class="badge b-returned">Returned on time</span>'; } return lbadge(l); };
+  const body = `${machineDetails(m)}<h3 style="font-size:1.05rem">Users and sign-outs</h3>${loans.length ? `<div class="table-wrap"><table style="min-width:640px"><thead><tr><th>Student</th><th>Signed out</th><th>Due</th><th>Returned</th><th>Result</th><th>Inspection</th></tr></thead><tbody>
+    ${loans.map(l => `<tr><td>${esc(l.studentName)}<div class="card-sub">${esc(l.studentIdNo)}${['pending', 'active', 'return_pending'].includes(l.status) ? ' · current' : ''}</div></td><td>${fmtDT(l.signedOutAt || l.requestedAt)}</td><td>${fmtDT(l.returnDue)}</td><td>${fmtDT(l.returnedAt)}${l.confirmedBy ? `<div class="card-sub">by ${esc(l.confirmedBy)}</div>` : ''}</td><td>${res(l)}</td>
+    <td>${l.inspection ? `${esc(l.inspection.condition)} · ${esc(OUTCOMES[l.inspection.outcome])}${l.inspection.faults ? `<div class="card-sub">Faults: ${esc(l.inspection.faults)}</div>` : ''}${l.inspection.missing ? `<div class="card-sub">Missing: ${esc(l.inspection.missing)}</div>` : ''}` : '–'}</td></tr>`).join('')}</tbody></table></div>` : '<p class="muted">Not signed out yet.</p>'}
+    <h3 style="font-size:1.05rem;margin-top:1rem">Damage reports</h3>${dmg.length ? `<ul class="timeline">${dmg.map(d => `<li><div class="when">${fmtDT(d.at)} · ${d.status === 'open' ? 'Open' : 'Resolved'}</div>${esc(d.description)}${d.resolution ? `<div class="card-sub">${esc(d.resolution)}</div>` : ''}</li>`).join('')}</ul>` : '<p class="muted">None.</p>'}
+    <h3 style="font-size:1.05rem;margin-top:1rem">Timeline: inspections, maintenance, repairs and availability</h3><ul class="timeline">${ev.map(e => `<li><div class="when">${fmtDT(e.at)} · ${esc(e.by)}</div><strong>${esc(EVL[e.type] || e.type)}.</strong> ${esc(e.detail)}${e.from && e.to && e.from !== e.to ? `<div class="card-sub">${esc(MST[e.from][0])} → ${esc(MST[e.to][0])}</div>` : ''}</li>`).join('')}</ul>`;
+  modal({ title: `${m.name} history`, wide: true, body, confirmText: 'Close', cancelText: null });
+}
+
+/* ================= Queue (storeman) ================= */
+function pgQueue() {
+  const L = vLoans().filter(l => canManage(l.schoolId));
+  const pend = L.filter(l => l.status === 'pending'), insp = L.filter(l => l.itemType === 'machine' && l.status === 'return_pending');
+  const outM = L.filter(l => l.itemType === 'machine' && l.status === 'active'), outT = L.filter(l => l.itemType === 'tool' && l.status === 'active');
+  const sec = (t, n, rows, e) => `<div class="sec"><h3>${t} (${n})</h3></div><div class="panel">${loanTable(rows, { empty: e })}</div>`;
+  $('#main').innerHTML = `<div class="page-head"><div><h2>Queue</h2><p>Approve or reject student requests, inspect returns and confirm tool returns.</p></div></div>
+    ${pend.length ? sec('Requests awaiting your approval', pend.length, pend, 'No requests waiting') : ''}${sec('Machines awaiting inspection', insp.length, insp, 'No returns waiting')}
+    ${sec('Machines signed out', outM.length, outM.sort((a, b) => a.returnDue.localeCompare(b.returnDue)), 'No machines signed out')}${sec('Tools signed out', outT.length, outT.sort((a, b) => a.returnDue.localeCompare(b.returnDue)), 'No tools signed out')}`;
+}
+function approve(id) {
+  const l = get('loans').find(x => x.id === id); if (!l || !guard(l.schoolId, 'approve request')) return;
+  const isTool = l.itemType === 'tool';
+  modal({ title: `Approve ${l.itemName}`, confirmText: isTool ? 'Approve and sign out' : 'Approve and issue', body: `<p>${esc(l.studentName)} (${esc(l.studentIdNo)}) · <span class="ref">${esc(l.ref)}</span><br>${isTool ? '' : (l.safety?.confirmedAt ? 'Safety check confirmed by the student.' : 'No safety check required.')}</p>
+    ${l.requestNote ? `<div class="callout">Student's note: ${esc(l.requestNote)}</div>` : ''}
+    <div class="field"><label for="aDue">Expected return date and time</label><input class="input" type="datetime-local" id="aDue" value="${toLocalInput(Math.max(new Date(l.returnDue).getTime(), Date.now() + 3600000))}"></div>
+    <div class="field"><label for="aNote">Conditions or supervision notes</label><textarea class="input" id="aNote" rows="2" placeholder="Optional"></textarea></div>`, onConfirm: ov => {
+    const due = new Date(ov.querySelector('#aDue').value).getTime(); if (!due || due < Date.now()) return fail('Choose a return time in the future.');
+    const L = get('loans'), x = L.find(y => y.id === id);
+    if (!x || x.status !== 'pending') return fail('This request is no longer pending.');
+    const stamp = () => { x.status = 'active'; x.authStatus = 'approved'; x.approvedBy = me.name; x.approvedById = me.id; x.approvedAt = nowIso(); x.signedOutAt = nowIso(); x.issuedBy = me.name; x.issuedById = me.id; x.returnDue = new Date(due).toISOString(); x.authNote = val(ov, 'aNote'); };
+    if (x.itemType === 'tool') {
+      stamp(); put('loans', L);
+      audit('tool_approved', 'tool', x.itemId, x.schoolId, `${x.itemName} (${x.ref}) request from ${x.studentName} (${x.studentIdNo}) approved and signed out by ${me.name}. Due ${fmtDT(x.returnDue)}.`);
+      toast('Approved and signed out'); return render();
+    }
+    const ms = get('machines'), m = ms.find(y => y.id === x.itemId);
+    if (!m || m.currentLoanId !== id) return fail('This request is no longer pending.');
+    stamp(); put('loans', L);
+    change(m, 'signed_out', 'approved', `Approved by ${me.name} and issued to ${x.studentName} (${x.studentIdNo}). Due ${fmtDT(x.returnDue)}.${x.authNote ? ' Note: ' + x.authNote : ''}`); put('machines', ms);
+    audit('machine_approved', 'machine', x.itemId, x.schoolId, `${x.itemName} (${x.ref}) approved and issued to ${x.studentName} (${x.studentIdNo}). Due ${fmtDT(x.returnDue)}.`); toast('Approved and issued'); render();
+  } });
+}
+function reject(id) {
+  const l = get('loans').find(x => x.id === id); if (!l || !guard(l.schoolId, 'reject request')) return;
+  modal({ title: `Reject request for ${l.itemName}`, danger: true, confirmText: 'Reject request', body: `<p>${esc(l.studentName)} (${esc(l.studentIdNo)})</p><div class="field"><label for="xWhy">Reason</label><textarea class="input" id="xWhy" rows="2"></textarea></div>`, onConfirm: ov => {
+    const why = val(ov, 'xWhy'); if (!why) return fail('Give a reason so the student knows why.');
+    const L = get('loans'), x = L.find(y => y.id === id);
+    if (!x || x.status !== 'pending') return fail('This request is no longer pending.');
+    x.status = 'rejected'; x.authStatus = 'rejected'; x.rejectReason = why; x.rejectedBy = me.name; put('loans', L);
+    if (x.itemType === 'tool') releaseTool(x);
+    else { const ms = get('machines'), m = ms.find(y => y.id === x.itemId); if (m && m.currentLoanId === id) { m.currentLoanId = null; change(m, 'available', 'rejected', `Request from ${x.studentName} rejected by ${me.name}: ${why}`); put('machines', ms); } }
+    audit(x.itemType + '_rejected', x.itemType, x.itemId, x.schoolId, `${x.itemName} (${x.ref}) request from ${x.studentName} rejected: ${why}`); toast('Request rejected'); render();
+  } });
+}
+function inspectReturn(id) {
+  const l = get('loans').find(x => x.id === id); if (!l || !guard(l.schoolId, 'inspect return')) return;
+  const m = get('machines').find(x => x.id === l.itemId), late = daysLate(l.returnDue, Date.now()), prior = get('damage').find(d => d.loanId === id && d.status === 'open');
+  modal({ title: `Inspect return: ${l.itemName}`, wide: true, confirmText: 'Confirm return', body: `<p><span class="ref">${esc(l.ref)}</span> · ${esc(l.studentName)} (${esc(l.studentIdNo)}) · signed out ${fmtDT(l.signedOutAt)}, due ${fmtDT(l.returnDue)}
+    ${l.status === 'return_pending' ? '<br>The student reported it returned.' : ''}${late ? `<br><strong>Returned ${late} day${late > 1 ? 's' : ''} late.</strong>` : ''}</p><div class="callout">The machine stays unavailable until you confirm the return here.</div>${prior ? `<div class="callout">The student reported damage: ${esc(prior.description)}</div>` : ''}` + outcomeFields(m ? m.condition : 'Good', true), onConfirm: ov => {
+    const L = get('loans'), x = L.find(y => y.id === id), ms = get('machines'), mm = ms.find(y => y.id === x.itemId);
+    if (!['active', 'return_pending'].includes(x.status)) return fail('This checkout was already handled.');
+    const r = applyOutcome(ms, mm, ov, x); if (!r) return false;
+    x.status = 'returned'; x.returnedAt = nowIso(); x.confirmedBy = me.name; x.confirmedById = me.id;
+    x.inspection = { at:x.returnedAt, byId:me.id, by:me.name, condition:r.cond, faults:r.faults, missing:r.missing, outcome:r.out, damageReportId:r.reportId }; if (r.reportId) x.damageReportId = r.reportId; put('loans', L);
+    mm.currentLoanId = null; const dl = daysLate(x.returnDue, x.returnedAt);
+    change(mm, r.to, 'returned', `Return from ${x.studentName} (${x.studentIdNo}) confirmed by ${me.name}${dl ? `, ${dl} day${dl > 1 ? 's' : ''} late` : ''}. ${r.summary}`, { reportId:r.reportId }); put('machines', ms);
+    audit('machine_return_confirmed', 'machine', x.itemId, x.schoolId, `${x.itemName} (${x.ref}) return confirmed from ${x.studentName}. ${r.summary}${dl ? ' Returned late.' : ''}${r.reportId ? ' Damage report created.' : ''}`);
+    toast(r.reportId ? 'Return confirmed and damage report created' : 'Return confirmed'); render();
+  } });
+}
+
+/* ================= Transactions ================= */
+function pgLoans() {
+  $('#main').innerHTML = `<div class="page-head"><div><h2>Transactions</h2><p>All tool and machine sign-outs${scopeIds().length > 1 ? ' across your schools' : ''}.</p></div><button class="btn btn-ghost" data-a="csv">Export CSV</button></div>${banner()}
+    <div class="toolbar"><input class="input" data-search="lSearch" type="search" placeholder="Search item, student, ID or reference" aria-label="Search transactions" value="${esc(ui.lSearch)}"></div>
+    <div class="chips">${[['all','Tools and machines'],['tool','Tools'],['machine','Machines']].map(([k, l]) => `<button class="chip" data-a="ltype" data-id="${k}" aria-pressed="${ui.lType === k}">${l}</button>`).join('')}<span style="width:1rem"></span>
+    ${[['all','All'],['pending','Awaiting approval'],['active','Signed out'],['overdue','Overdue'],['return_pending','Awaiting inspection'],['returned','Returned']].map(([k, l]) => `<button class="chip" data-a="lstatus" data-id="${k}" aria-pressed="${ui.lStatus === k}">${l}</button>`).join('')}</div><div class="panel" id="list"></div>`;
+  drawLoans();
+}
+const filteredLoans = () => { const q = ui.lSearch.toLowerCase(); return vLoans().filter(l => (ui.lType === 'all' || l.itemType === ui.lType) && (ui.lStatus === 'all' || loanStatus(l) === ui.lStatus) && (!q || (l.itemName + l.studentName + l.studentIdNo + l.ref).toLowerCase().includes(q))).sort((a, b) => b.requestedAt.localeCompare(a.requestedAt)); };
+function drawLoans() { $('#list').innerHTML = loanTable(filteredLoans(), { empty: 'No transactions found', emptyHint: 'Adjust the search or filters.' }); }
+function exportCsv() {
+  const cell = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const rows = [['Type', 'Item', 'Reference', 'Student', 'Student ID', 'School', 'Storeroom', 'Requested', 'Signed out', 'Due', 'Returned', 'Status', 'Approval', 'Safety check confirmed', 'Confirmed by']].concat(filteredLoans().map(l => [l.itemType, l.itemName, l.ref, l.studentName, l.studentIdNo, sName(l.schoolId), rName(l.storeroomId), l.requestedAt, l.signedOutAt || '', l.returnDue, l.returnedAt || '', loanStatus(l), l.authStatus || '', l.safety?.confirmedAt ? 'yes' : (l.safety?.required ? 'no' : 'n/a'), l.confirmedBy || '']));
+  const csv = rows.map(r => r.map(cell).join(',')).join('\n');
+  try { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type:'text/csv' })); a.download = 'transactions.csv'; document.body.appendChild(a); a.click(); a.remove(); } catch (e) {}
+  if (navigator.clipboard) navigator.clipboard.writeText(csv).then(() => toast('CSV copied to your clipboard'), () => {});
+  audit('export_csv', 'report', '', scopeIds()[0], `Exported ${rows.length - 1} transactions`);
+}
+
+/* ================= Dashboard ================= */
+function calcStats(sids) {
+  const T = get('tools').filter(t => sids.includes(t.schoolId)), M = get('machines').filter(m => sids.includes(m.schoolId)), L = get('loans').filter(l => sids.includes(l.schoolId));
+  const tl = L.filter(l => l.itemType === 'tool'), ml = L.filter(l => l.itemType === 'machine'), mc = s => M.filter(m => m.status === s).length;
+  return { tAvail: sum(T, t => t.quantityAvailable), tOut: tl.filter(l => l.status === 'active').length, tOver: tl.filter(l => loanStatus(l) === 'overdue').length, tDmg: sum(T, t => t.quantityDamaged),
+    mAvail: mc('available'), mOut: mc('signed_out'), mOver: ml.filter(l => loanStatus(l) === 'overdue').length, mDmg: mc('damaged'), mInsp: mc('awaiting_inspection'), mMaint: mc('under_maintenance'), mRepair: mc('under_repair'), mPend: L.filter(l => l.status === 'pending').length, dOpen: get('damage').filter(d => sids.includes(d.schoolId) && d.status === 'open').length, mTotal: M.length };
+}
+const stat = (n, l, cls = '') => `<div class="stat ${n && cls ? cls : ''}"><div class="n">${n}</div><div class="l">${l}</div></div>`;
+function pgDash() {
+  const sids = scopeIds(), s = calcStats(sids), L = vLoans();
+  const out = L.filter(l => ['active', 'return_pending'].includes(l.status)).sort((a, b) => (loanStatus(b) === 'overdue') - (loanStatus(a) === 'overdue') || (a.itemType === 'machine' ? -1 : 1) - (b.itemType === 'machine' ? -1 : 1) || a.returnDue.localeCompare(b.returnDue)).slice(0, 12);
+  const usage = vMachines().map(m => { const ml = L.filter(l => l.itemType === 'machine' && l.itemId === m.id && l.signedOutAt); return { m, all: ml.length, d30: ml.filter(l => Date.now() - new Date(l.signedOutAt).getTime() < 30 * DAY).length, late: ml.filter(l => l.overdueAt || (l.returnedAt && daysLate(l.returnDue, l.returnedAt))).length }; }).sort((a, b) => b.all - a.all).slice(0, 10);
+  $('#main').innerHTML = `<div class="page-head"><div><h2>Dashboard</h2><p>${sids.length > 1 ? 'All assigned schools' : esc(sName(sids[0]))}</p></div></div>${banner()}
+    <div class="sec" style="margin-top:0"><h3>Tools</h3></div><div class="stats">${stat(s.tAvail, 'Available tools')}${stat(s.tOut, 'Signed-out tools')}${stat(s.tOver, 'Overdue tool returns', 'hot')}${stat(s.tDmg, 'Damaged tools', 'hot')}</div>
+    <div class="sec"><h3>Machines</h3></div><div class="stats">${stat(s.mAvail, 'Available machines')}${stat(s.mOut, 'Signed-out machines')}${stat(s.mOver, 'Overdue machine returns', 'hot')}${stat(s.mDmg, 'Damaged machines', 'hot')}</div>
+    <div class="sec"><h3>Needs attention</h3></div><div class="stats">${stat(s.mPend, 'Awaiting approval', 'attn')}${stat(s.mInsp, 'Awaiting inspection', 'attn')}${stat(s.mMaint, 'In maintenance', 'attn')}${stat(s.mRepair, 'Under repair', 'attn')}${stat(s.dOpen, 'Open damage reports', 'attn')}</div>
+    ${sids.length > 1 ? `<div class="sec"><h3>By school</h3></div><div class="panel"><div class="table-wrap"><table><thead><tr><th>School</th><th>Tools avail.</th><th>Machines avail.</th><th>Tools out</th><th>Machines out</th><th>Tools overdue</th><th>Machines overdue</th><th>Tools damaged</th><th>Machines damaged</th><th>Awaiting insp.</th><th>Maint. / repair</th></tr></thead><tbody>
+    ${sids.map(id => { const x = calcStats([id]); return `<tr><td><strong>${esc(sName(id))}</strong></td><td>${x.tAvail}</td><td>${x.mAvail}</td><td>${x.tOut}</td><td>${x.mOut}</td><td>${x.tOver}</td><td>${x.mOver}</td><td>${x.tDmg}</td><td>${x.mDmg}</td><td>${x.mInsp}</td><td>${x.mMaint + x.mRepair}</td></tr>`; }).join('')}</tbody></table></div></div>` : ''}
+    <div class="sec"><h3>Outstanding returns</h3></div><div class="panel">${loanTable(out, { empty: 'Nothing outstanding', emptyHint: 'Everything borrowed has been returned.' })}</div>
+    <div class="sec"><h3>Machine usage</h3></div><div class="panel">${usage.length ? `<div class="table-wrap"><table><thead><tr><th>Machine</th><th>School</th><th>Status</th><th>Sign-outs (all time)</th><th>Last 30 days</th><th>Late returns</th></tr></thead><tbody>
+    ${usage.map(u => `<tr><td><strong>${esc(u.m.name)}</strong><div class="card-sub"><span class="ref">${esc(u.m.refNo)}</span></div></td><td>${esc(sName(u.m.schoolId))}</td><td>${mbadge(u.m)}</td><td>${u.all}</td><td>${u.d30}</td><td>${u.late}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty"><strong>No machines yet</strong></div>'}</div>`;
+}
+
+/* ================= Audit ================= */
+function pgAudit() {
+  $('#main').innerHTML = `<div class="page-head"><div><h2>Audit log</h2><p>Every sign-out, return, approval, inspection and change, with who did it and when.</p></div></div>${banner()}
+    <div class="toolbar"><input class="input" data-search="aSearch" type="search" placeholder="Search by person, action or item" aria-label="Search audit log" value="${esc(ui.aSearch)}"></div><div class="panel" id="list"></div>`;
+  drawAudit();
+}
+function drawAudit() {
+  const q = ui.aSearch.toLowerCase(), A = get('audit').filter(a => !a.schoolId || inScope(a.schoolId)).filter(a => !q || (a.actor + a.action + a.detail + a.entity).toLowerCase().includes(q)).sort((a, b) => b.at.localeCompare(a.at)).slice(0, 300);
+  $('#list').innerHTML = A.length ? `<div class="table-wrap"><table><thead><tr><th>When</th><th>Who</th><th>School</th><th>Action</th><th>Details</th></tr></thead><tbody>${A.map(a => `<tr><td>${fmtDT(a.at)}</td><td>${esc(a.actor)}<div class="card-sub">${esc(a.role)}</div></td><td>${a.schoolId ? esc(sName(a.schoolId)) : '–'}</td><td><span class="ref">${esc(a.action)}</span></td><td>${esc(a.detail)}</td></tr>`).join('')}</tbody></table></div>` : '<div class="empty"><strong>No entries</strong></div>';
+}
+
+/* ================= Events ================= */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el) return;
+    const a = el.dataset.a, id = el.dataset.id;
+  const H = { go: () => go(id), logout, cat: () => { ui.cat = id; render(); }, submitissue: submitIssue, addschool: addSchool, editcode: () => editSchoolCode(id), delschool: () => deleteSchool(id), addroom: () => addStoreroom(id), addstoreman: () => addStoreman(id), rmuser: () => removeUser(id), pwreset: () => resetPassword(id), addmgr: addManager, editmgr: () => editManager(id), mview: () => machineModal(id), mine: () => { ui.mine = id; pgMine(); }, minetype: () => { ui.mineType = id; pgMine(); },
+    cancel: () => cancelRequest(id), reqtool: () => requestTool(id), reqmach: () => requestMachine(id), approve: () => approve(id), reject: () => reject(id), inspret: () => inspectReturn(id), toolret: () => toolReturn(id),
+    addtool: addTool, edittool: () => editTool(id), deltool: () => deleteTool(id), addmach: addMachine, editmach: () => editMachine(id), inspmach: () => inspectMachine(id), service: () => serviceMachine(id), history: () => historyModal(id),
+    mstatus: () => { ui.mStatus = id; pgMachinesStaff(); }, ltype: () => { ui.lType = id; pgLoans(); }, lstatus: () => { ui.lStatus = id; pgLoans(); }, resolve: () => resolveDamage(id), csv: exportCsv, submitreport: submitReport, takeout: () => takeOut(id) };
+  H[a] && H[a]();
+});
+document.addEventListener('input', e => { const k = e.target.dataset.search; if (k) { ui[k] = e.target.value; redraw(); } else if (e.target.id === 'iFind') fillIssueStudents(); });
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'scopeSel') { ui.school = t.value; go(ui.view); }
+  else if (t.id === 'rType') fillReportItems();
+  else if (['iStu', 'iType', 'iItem'].includes(t.id)) refreshIssue(t.id);
+  else if (t.dataset.k) { ui[t.dataset.k] = t.type === 'checkbox' ? t.checked : t.value; redraw(); }
+});
+$('#loginForm').addEventListener('submit', e => { e.preventDefault(); authenticate($('#loginEmail').value, $('#loginPassword').value); });
+$('#switchBtn').addEventListener('click', () => setSignup(!signup));
+
+/* ================= Boot ================= */
+async function migrate() {
+  const us = get('users');
+  /* Main administrator (password stored only as a salted SHA-256 hash) */
+  const ADMIN = { email:'hnkausu42@gmail.com', salt:'baa632fdb26fb418', passHash:'c3417840f46eafb8d71ac2b66cc803029efacbba126f600244592d8b86a9a999' };
+  const ex = us.find(u => u.role === 'admin');
+  if (ex) { ex.email = ADMIN.email; ex.salt = ADMIN.salt; ex.passHash = ADMIN.passHash; }
+  else us.push({ id:'u0', email:ADMIN.email, name:'PTSA Administrator', role:'admin', schoolIds:[], salt:ADMIN.salt, passHash:ADMIN.passHash });
+  put('users', us);
+  /* Sample tools for demonstration (added once; edit or remove from the Tools screen) */
+  if (!store.get('toolsSeeded', false)) {
+    const rooms = get('storerooms'), T = (sc, r, n, cat, tot, desc) => ({ id:uid(), schoolId:sc.id, storeroomId:r.id, name:n, category:cat, quantityTotal:tot, quantityDamaged:0, quantityAvailable:tot, description:desc });
+    const list = [['Hammer', 'Hand Tools', 5, 'Claw hammer for general use'], ['Screwdriver Set', 'Hand Tools', 4, 'Multi-bit screwdriver set'], ['Adjustable Wrench Set', 'Hand Tools', 3, 'Set of adjustable spanners'], ['Hand Saw', 'Cutting Tools', 3, 'Hand saw for cutting wood'], ['Hacksaw', 'Cutting Tools', 3, 'Metal cutting hacksaw with spare blades'], ['Vernier Caliper', 'Measuring', 4, 'Digital vernier caliper, 150 mm'], ['Micrometer', 'Measuring', 3, 'Outside micrometer, 0 to 25 mm'], ['Tape Measure', 'Measuring', 6, '5 m tape measure'], ['Digital Multimeter', 'Measuring', 3, 'Digital multimeter'], ['Safety Glasses', 'Safety', 10, 'Impact-resistant safety glasses']];
+    const tools = get('tools');
+    get('schools').forEach(sc => { const r = rooms.find(x => x.schoolId === sc.id); if (r) list.forEach(t => tools.push(T(sc, r, ...t))); });
+    put('tools', tools); store.set('toolsSeeded', true);
+  }
+  /* Sample machines for demonstration (added once; edit or retire them from the Machines screen) */
+  if (!store.get('machinesSeeded', false)) {
+    const rooms = get('storerooms'), ms = get('machines'), ev = get('events');
+    const list = [['Bench Drill Press', 'Drilling', 'Jet', 'JDP-15', 'Good', 'Workshop Bay 1', true, true], ['Band Saw', 'Cutting', 'Hegner', 'HBS-250', 'Good', 'Workshop Bay 2', true, true], ['Angle Grinder', 'Power Tools', 'Bosch', 'GWS 7-115', 'Fair', 'Cage 1', false, true], ['Belt Sander', 'Sanding', 'Makita', '9403', 'Good', 'Workshop Bay 3', false, true], ['3D Printer', 'Fabrication', 'Prusa', 'MK4', 'Excellent', 'Tech Lab Shelf A', false, false], ['Wood Lathe', 'Turning', 'Record Power', 'CL3', 'Good', 'Main Workshop', true, true]];
+    get('schools').forEach(sc => { const r = rooms.find(x => x.schoolId === sc.id); if (!r) return;
+      list.forEach((m, i) => { const mm = { id:uid(), schoolId:sc.id, storeroomId:r.id, refNo:`${sc.code}${24511 + i}`, name:m[0], category:m[1], brand:m[2], model:m[3], serial:`${m[2].slice(0, 2).toUpperCase()}-${sc.code}${100 + i}`, condition:m[4], location:m[5], requiresAuth:m[6], requiresSafetyCheck:m[7], status:'available', currentLoanId:null, createdAt:nowIso() };
+        ms.push(mm); ev.push({ id:uid(), machineId:mm.id, schoolId:sc.id, at:nowIso(), type:'registered', by:'System', byId:null, detail:'Machine registered in inventory.' }); }); });
+    put('machines', ms); put('events', ev); store.set('machinesSeeded', true);
+  }
+}
+seed().then(migrate).then(() => {
+  setSignup(false);
+  const id = store.get('session', null), u = id && get('users').find(x => x.id === id);
+  if (u) enter(u);
+});
+})();
+</script>
+</body>
+</html>
